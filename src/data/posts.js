@@ -1,14 +1,30 @@
+// ─────────────────────────────────────────────────────────────────
+// BLOG POSTS — add new posts by adding a new object to this array
+//
+// CONTENT TYPES:
+//   { type: 'p',            text: '...' }
+//   { type: 'h2',           text: '...' }
+//   { type: 'h3',           text: '...' }
+//   { type: 'ul',           items: ['...'] }
+//   { type: 'ol',           items: ['...'] }
+//   { type: 'callout',      title: '...', text: '...', sky: false }
+//   { type: 'table',        headers: [...], rows: [[...]] }
+//   { type: 'summary',      title: '...', rows: [{ label, value }] }
+//   { type: 'internalLink', label: '...', text: '...', to: '/...' }
+//   { type: 'calculatorCTA',title: '...', text: '...' }
+// ─────────────────────────────────────────────────────────────────
+
 const posts = [
 
   // ── 1. How many solar panels ─────────────────────────
   {
     slug:     'how-many-solar-panels',
     title:    'How Many Solar Panels Do I Need? A Practical Kenya Guide',
-    date:     '2026-03-01',
+    date:     '2025-03-01',
     tag:      'Solar',
     tagColor: 'solar',
     readTime: '10 min',
-    image:    '/images/solar-count.jpg',
+    image:    '/images/how-many-solar-panels.jpg',
     excerpt:  'Step-by-step calculation using real Kenyan sunshine hours and county data so you know your number before talking to any installer.',
     content: [
       { type:'p', text:"This is the question everyone asks first, and it is the right one to start with. The honest answer is: it depends entirely on what you want to run. There is no single number that works for every Kenyan household, but there is a straightforward formula you can apply in about 10 minutes." },
@@ -90,21 +106,21 @@ const posts = [
   {
     slug:     'solar-3-bedroom-house',
     title:    'Solar for a 3-Bedroom House in Kenya: What You Need and What It Costs',
-    date:     '2026-03-05',
+    date:     '2025-03-05',
     tag:      'Solar',
     tagColor: 'solar',
     readTime: '12 min',
-    image:    '/images/3-bedroom-solar.jpg',
+    image:    '/images/solar-3-bedroom-house.jpg',
     excerpt:  'Real KSh price ranges, brand recommendations, and 5 questions to ask every installer before you sign anything.',
     content: [
       { type:'p', text:"Kenya Power charges around KSh 24 to 28 per kWh once all levies and VAT are included. A typical 3-bedroom Nairobi home spends KSh 4,000 to 8,000 per month on electricity. A well-sized solar system cuts that by 70 to 90 percent and pays for itself in 4 to 7 years. Everything after that is essentially free power." },
       { type:'p', text:"This guide covers what a complete system actually includes, what each component costs in Kenya today, which brands are worth buying, and the five questions you must ask every installer before agreeing to anything." },
 
       { type:'h2', text:'The four components every system needs' },
-      { type:'p', text:"1) Solar panels; generate DC electricity from sunlight. Most homes use monocrystalline panels, the most efficient type available in Kenya and now the standard across the industry." },
-      { type:'p', text:"2) A hybrid inverter; converts DC to AC for your appliances while managing the relationship between solar, batteries, and the KPLC grid simultaneously. This is the brain of your system." },
-      { type:'p', text:"3) Batteries; store surplus daytime energy for evenings, nights, and cloudy days. This is where most of your budget goes and where most buying mistakes happen." },
-      { type:'p', text:"4) Wiring, mounting, and installation; covers cables, brackets, circuit breakers, conduit, and labour. Budget KSh 15,000 to 45,000 depending on system size and roof type." },
+      { type:'p', text:"Solar panels generate DC electricity from sunlight. Most homes use monocrystalline panels, the most efficient type available in Kenya and now the standard across the industry." },
+      { type:'p', text:"A hybrid inverter converts DC to AC for your appliances while managing the relationship between solar, batteries, and the KPLC grid simultaneously. This is the brain of your system." },
+      { type:'p', text:"Batteries store surplus daytime energy for evenings, nights, and cloudy days. This is where most of your budget goes and where most buying mistakes happen." },
+      { type:'p', text:"Wiring, mounting, and installation covers cables, brackets, circuit breakers, conduit, and labour. Budget KSh 15,000 to 45,000 depending on system size and roof type." },
 
       { type:'h2', text:'Solar panels: what to buy in Kenya' },
       { type:'table',
@@ -172,12 +188,12 @@ const posts = [
   // ── 3. Best water tanks ──────────────────────────────
   {
     slug:     'best-water-tanks-kenya',
-    title:    'Best Water Tanks in Kenya: Brands, Sizes, and Current Prices (2026)',
-    date:     '2026-03-08',
+    title:    'Best Water Tanks in Kenya: Brands, Sizes, and Current Prices (2025)',
+    date:     '2025-03-08',
     tag:      'Water',
     tagColor: 'water',
     readTime: '9 min',
-    image:    '/images/tank-sizes.jpg',
+    image:    '/images/best-water-tanks-kenya.jpg',
     excerpt:  'An honest comparison of Kentank, Roto, Toptank, and more with real KSh price tables and a guide to choosing the right size for your household.',
     content: [
       { type:'p', text:"Water storage is one of the most practical investments a Kenyan household can make. Whether you are dealing with rationing from the county water company, an unreliable borehole, or simply want independence, a well-sized tank changes daily life in a real way." },
@@ -204,7 +220,7 @@ const posts = [
       { type:'h3', text:'Techno Tanks' },
       { type:'p', text:"Made from 100 percent virgin polyethylene with no recycled plastic content. This matters because recycled plastic can leach taste into water and is structurally weaker over time, especially in direct sunlight. Good mid-range option at a slightly lower price than Kentank or Roto." },
 
-      { type:'h2', text:'Price guide by tank size, 2026' },
+      { type:'h2', text:'Price guide by tank size, 2025' },
       { type:'table',
         headers:['Tank Size', 'Budget or Generic', 'Roto, Kentank, or Toptank', 'Best For'],
         rows:[
@@ -242,11 +258,11 @@ const posts = [
   {
     slug:     'lithium-vs-lead-acid',
     title:    'Lithium vs Lead-Acid Batteries in Kenya: Which Should You Buy?',
-    date:     '2026-03-10',
+    date:     '2025-03-10',
     tag:      'Solar',
     tagColor: 'solar',
     readTime: '11 min',
-    image:    '/images/lead-lithium.jpg',
+    image:    '/images/lithium-vs-lead-acid.jpg',
     excerpt:  'A no-nonsense comparison of LiFePO4 and lead-acid batteries using real Kenyan prices so you can make the right call for your budget and situation.',
     content: [
       { type:'p', text:"The battery is the most expensive and most misunderstood component of any solar system in Kenya. Get it wrong and you will be replacing it in two years. Get it right and it will serve your home for a decade or more." },
@@ -326,11 +342,11 @@ const posts = [
   // ── 5. Rainwater Harvesting ──────────────────────────
   {
     slug:     'rainwater-harvesting-kenya',
-    title:    'Rainwater Harvesting in Kenya: A Complete Setup Guide (2026)',
-    date:     '2026-03-11',
+    title:    'Rainwater Harvesting in Kenya: A Complete Setup Guide (2025)',
+    date:     '2025-03-11',
     tag:      'Water',
     tagColor: 'water',
-    image:    '/images/rainwater-harvesting.jpg',
+    image:    '/images/rainwater-harvesting-kenya.jpg',
     readTime: '12 min',
     excerpt:  'Everything you need to collect, filter, and store rainwater in Kenya from rooftop collection to first-flush filters with real material costs.',
     content: [
@@ -379,9 +395,9 @@ const posts = [
         headers:['Purification Method', 'Cost', 'Removes', 'Notes'],
         rows:[
           ['Boiling',                  'Fuel cost only',       'Bacteria and viruses',               'Cheapest but uses energy or firewood'],
-          ['Ceramic candle filter',    'KSh 500 to 16,000',  'Bacteria and sediment',              'Slow flow rate, replace candle every 6 months'],
-          ['UV steriliser 12V solar',  'KSh 10,000 to 16,000','Bacteria and viruses',               'Best for solar-powered homes'],
-          ['Gravity sand filter DIY',  'KSh 1,000 to 6,000',  'Sediment and some bacteria',         'Good first stage before ceramic or UV'],
+          ['Ceramic candle filter',    'KSh 3,000 to 8,000',  'Bacteria and sediment',              'Slow flow rate, replace candle every 6 months'],
+          ['UV steriliser 12V solar',  'KSh 15,000 to 35,000','Bacteria and viruses',               'Best for solar-powered homes'],
+          ['Gravity sand filter DIY',  'KSh 1,000 to 3,000',  'Sediment and some bacteria',         'Good first stage before ceramic or UV'],
           ['Reverse osmosis unit',     'KSh 25,000 to 60,000','Everything including chemicals',     'Highest quality, needs water pressure'],
         ]
       },
@@ -422,12 +438,22 @@ const posts = [
 
 export default posts
 
+import { getCMSPosts } from './cmsLoader.js'
+
+function getMergedPosts() {
+  let cmsPosts = []
+  try { cmsPosts = getCMSPosts() } catch (e) { /* no CMS posts yet */ }
+  const cmsSlugs = new Set(cmsPosts.map(p => p.slug))
+  const hardcoded = posts.filter(p => !cmsSlugs.has(p.slug))
+  return [...hardcoded, ...cmsPosts].sort((a, b) => new Date(b.date) - new Date(a.date))
+}
+
 export function getAllPosts() {
-  return [...posts].sort((a, b) => new Date(b.date) - new Date(a.date))
+  return getMergedPosts()
 }
 
 export function getPostBySlug(slug) {
-  return posts.find(p => p.slug === slug) || null
+  return getMergedPosts().find(p => p.slug === slug) || null
 }
 
 export function formatDate(dateString) {

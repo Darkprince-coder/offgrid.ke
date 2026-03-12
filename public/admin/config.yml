@@ -1,0 +1,105 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: public/images
+public_folder: /images
+
+site_url: https://offgrid.ke
+display_url: https://offgrid.ke
+logo_url: https://offgrid.ke/favicon.ico
+
+collections:
+  - name: posts
+    label: Blog Posts
+    label_singular: Blog Post
+    folder: content/posts
+    create: true
+    slug: "{{slug}}"
+    identifier_field: title
+    summary: "{{title}} — {{tag}} — {{date}}"
+    sortable_fields: ["date", "title", "tag"]
+    view_filters:
+      - label: Solar
+        field: tag
+        pattern: Solar
+      - label: Water
+        field: tag
+        pattern: Water
+      - label: Food
+        field: tag
+        pattern: Food
+      - label: Security
+        field: tag
+        pattern: Security
+    fields:
+      - label: Title
+        name: title
+        widget: string
+        hint: "The full post title shown on the card and at the top of the article"
+
+      - label: Slug
+        name: slug
+        widget: string
+        hint: "URL-friendly version of the title e.g. how-many-solar-panels — no spaces, all lowercase, hyphens only"
+        pattern: ['^[a-z0-9]+(?:-[a-z0-9]+)*$', "Lowercase letters, numbers and hyphens only — no spaces"]
+
+      - label: Publish Date
+        name: date
+        widget: datetime
+        format: "YYYY-MM-DD"
+        date_format: "YYYY-MM-DD"
+        time_format: false
+        hint: "Date the post is published"
+
+      - label: Category
+        name: tag
+        widget: select
+        options: ["Solar", "Water", "Food", "Security"]
+        hint: "Category shown on the post card badge"
+
+      - label: Tag Color
+        name: tagColor
+        widget: select
+        options:
+          - { label: "Solar (orange)", value: "solar" }
+          - { label: "Water (blue)", value: "water" }
+          - { label: "Food (green)", value: "food" }
+          - { label: "Security (purple)", value: "security" }
+        hint: "Must match the category — Solar=solar, Water=water, Food=food, Security=security"
+
+      - label: Read Time
+        name: readTime
+        widget: string
+        default: "5 min"
+        hint: "Estimated read time e.g. 8 min"
+
+      - label: Cover Image
+        name: image
+        widget: image
+        required: false
+        hint: "Upload a cover image for the post card and article header. Recommended size: 1200x630px"
+        media_library:
+          config:
+            multiple: false
+
+      - label: Excerpt
+        name: excerpt
+        widget: text
+        hint: "Short summary shown on the post card — 1 to 2 sentences, under 160 characters"
+
+      - label: Article Body
+        name: body
+        widget: markdown
+        hint: "Write your full article here. Use headings, bullet points, and bold text freely."
+        buttons:
+          - bold
+          - italic
+          - link
+          - heading-two
+          - heading-three
+          - bulleted-list
+          - numbered-list
+          - quote
+        editor_components: []
+        modes: [rich_text, raw]
