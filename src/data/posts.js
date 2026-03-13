@@ -20,7 +20,7 @@ const posts = [
   {
     slug:     'how-many-solar-panels',
     title:    'How Many Solar Panels Do I Need? A Practical Kenya Guide',
-    date:     '2025-03-01',
+    date:     '2026-03-01',
     tag:      'Solar',
     tagColor: 'solar',
     readTime: '10 min',
@@ -106,7 +106,7 @@ const posts = [
   {
     slug:     'solar-3-bedroom-house',
     title:    'Solar for a 3-Bedroom House in Kenya: What You Need and What It Costs',
-    date:     '2025-03-05',
+    date:     '2026-03-05',
     tag:      'Solar',
     tagColor: 'solar',
     readTime: '12 min',
@@ -188,8 +188,8 @@ const posts = [
   // ── 3. Best water tanks ──────────────────────────────
   {
     slug:     'best-water-tanks-kenya',
-    title:    'Best Water Tanks in Kenya: Brands, Sizes, and Current Prices (2025)',
-    date:     '2025-03-08',
+    title:    'Best Water Tanks in Kenya: Brands, Sizes, and Current Prices (2026)',
+    date:     '2026-03-08',
     tag:      'Water',
     tagColor: 'water',
     readTime: '9 min',
@@ -220,7 +220,7 @@ const posts = [
       { type:'h3', text:'Techno Tanks' },
       { type:'p', text:"Made from 100 percent virgin polyethylene with no recycled plastic content. This matters because recycled plastic can leach taste into water and is structurally weaker over time, especially in direct sunlight. Good mid-range option at a slightly lower price than Kentank or Roto." },
 
-      { type:'h2', text:'Price guide by tank size, 2025' },
+      { type:'h2', text:'Price guide by tank size, 2026' },
       { type:'table',
         headers:['Tank Size', 'Budget or Generic', 'Roto, Kentank, or Toptank', 'Best For'],
         rows:[
@@ -258,7 +258,7 @@ const posts = [
   {
     slug:     'lithium-vs-lead-acid',
     title:    'Lithium vs Lead-Acid Batteries in Kenya: Which Should You Buy?',
-    date:     '2025-03-10',
+    date:     '2026-03-10',
     tag:      'Solar',
     tagColor: 'solar',
     readTime: '11 min',
@@ -342,8 +342,8 @@ const posts = [
   // ── 5. Rainwater Harvesting ──────────────────────────
   {
     slug:     'rainwater-harvesting-kenya',
-    title:    'Rainwater Harvesting in Kenya: A Complete Setup Guide (2025)',
-    date:     '2025-03-11',
+    title:    'Rainwater Harvesting in Kenya: A Complete Setup Guide (2026)',
+    date:     '2026-03-11',
     tag:      'Water',
     tagColor: 'water',
     image:    '/images/rainwater-harvesting-kenya.jpg',
