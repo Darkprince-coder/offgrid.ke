@@ -5,6 +5,7 @@ import { formatDate } from '../data/posts'
 // Real topic images from Unsplash (free, no API key needed)
 const topicImages = {
   solar: [
+    '/images/welcome-to-offgrid.jpg',
     '/images/lead-lithium.jpg', 
     '/images/3-bedroom-solar.jpg', 
     '/images/how-many-solars.jpg',
