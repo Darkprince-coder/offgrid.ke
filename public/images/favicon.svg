@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="300" height="300">
+  <!-- Background -->
+  <rect width="300" height="300" rx="24" fill="#1a1208"/>
+
+  <!-- Sun rays -->
+  <g transform="translate(150, 118)">
+    <line x1="0" y1="-38" x2="0" y2="-52" stroke="#d4721a" stroke-width="5" stroke-linecap="round"/>
+    <line x1="0" y1="38" x2="0" y2="52" stroke="#d4721a" stroke-width="5" stroke-linecap="round"/>
+    <line x1="38" y1="0" x2="52" y2="0" stroke="#d4721a" stroke-width="5" stroke-linecap="round"/>
+    <line x1="-38" y1="0" x2="-52" y2="0" stroke="#d4721a" stroke-width="5" stroke-linecap="round"/>
+    <line x1="26.9" y1="-26.9" x2="36.8" y2="-36.8" stroke="#d4721a" stroke-width="5" stroke-linecap="round"/>
+    <line x1="-26.9" y1="-26.9" x2="-36.8" y2="-36.8" stroke="#d4721a" stroke-width="5" stroke-linecap="round"/>
+    <line x1="26.9" y1="26.9" x2="36.8" y2="36.8" stroke="#d4721a" stroke-width="5" stroke-linecap="round"/>
+    <line x1="-26.9" y1="26.9" x2="-36.8" y2="36.8" stroke="#d4721a" stroke-width="5" stroke-linecap="round"/>
+    <!-- Sun center circle -->
+    <circle cx="0" cy="0" r="24" fill="#d4721a"/>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="150" y="210" text-anchor="middle"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="38" font-weight="700"
+    fill="#ffffff" letter-spacing="-1">OFFGRID<tspan fill="#d4721a">.KE</tspan></text>
+
+  <!-- Tagline -->
+  <text x="150" y="238" text-anchor="middle"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="13" font-weight="400"
+    fill="rgba(255,255,255,0.4)" letter-spacing="3">INDEPENDENT LIVING</text>
+</svg>
