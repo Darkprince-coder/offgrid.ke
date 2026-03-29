@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { BookOpen, MapPin, ShieldCheck, BarChart2, ChevronRight, ArrowRight } from 'lucide-react'
+import SEOHead from '../components/SEOHead'
 
 const VALUES = [
   { Icon: BookOpen,    color: 'var(--color-sun)', title: 'Free forever',      body: 'Every guide is free. No paywall, no sign-up required. Good information should be accessible to every Kenyan.' },
@@ -11,6 +12,11 @@ const VALUES = [
 export default function About() {
   return (
     <div style={{ maxWidth: '860px', margin: '0 auto', padding: '4rem 5% 6rem' }}>
+  <SEOHead
+  title="About OFFGRID.KE — Kenya's Free Off-Grid Resource"
+  description="OFFGRID.KE helps Kenyans make smarter off-grid decisions with real prices, practical guides, and honest advice on solar, water, and security systems."
+  canonical="/about"
+/>
 
       {/* Breadcrumb */}
       <div style={{ display: 'flex', gap: '0.5rem', fontSize: '0.76rem', marginBottom: '2rem', color: 'var(--color-muted)' }}>

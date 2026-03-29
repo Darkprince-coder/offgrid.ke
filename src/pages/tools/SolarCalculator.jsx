@@ -1,5 +1,6 @@
 import { useState, useMemo, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import SEOHead from '../../components/SEOHead'
 import {
   Lightbulb, Tv2, Radio, Laptop, Smartphone, Wifi,
   Refrigerator, Droplets, WashingMachine, Microwave,
@@ -61,6 +62,21 @@ function StepBar({ step }) {
   const steps = ['Appliances', 'Battery & Backup', 'Results']
   return (
     <div style={{ display:'flex', alignItems:'center', marginBottom:'2.5rem' }}>
+      <SEOHead
+  title="Free Solar System Calculator for Kenya — Panels, Batteries & Inverter"
+  description="Enter your appliances and county. Get an instant solar system recommendation with real Kenyan prices for panels, batteries, and inverter. Free tool, no sign-up."
+  canonical="/tools/solar-calculator"
+  schema={{
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'Kenya Solar System Calculator',
+    applicationCategory: 'UtilitiesApplication',
+    operatingSystem: 'Web',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'KES' },
+    description: 'Free solar calculator for Kenya. Get panel, battery, and inverter recommendations with real KSh prices.',
+    url: 'https://offgrid.ke/tools/solar-calculator',
+  }}
+/>
       {steps.map((s, i) => {
         const active = i + 1 === step
         const done   = i + 1 < step

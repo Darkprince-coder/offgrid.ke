@@ -1,6 +1,7 @@
 import { useParams, Link, Navigate } from 'react-router-dom'
 import { getPostBySlug, formatDate } from '../data/posts'
 import PostContent from '../components/PostContent'
+import SEOHead from '../components/SEOHead'
 
 const tagClass = { solar: 'tag-solar', water: 'tag-water', how: 'tag-how', security: 'tag-security' }
 
@@ -10,8 +11,53 @@ export default function Post() {
 
   if (!post) return <Navigate to="/404" replace />
 
+  // Build Article JSON-LD schema
+  const articleSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: post.title,
+    description: post.excerpt || post.title,
+    url: `https://offgrid.ke/posts/${post.slug}`,
+    datePublished: post.date,
+    dateModified: post.date,
+    author: {
+      '@type': 'Organization',
+      name: 'OFFGRID.KE',
+      url: 'https://offgrid.ke',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'OFFGRID.KE',
+      url: 'https://offgrid.ke',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://offgrid.ke/og-default.jpg',
+      },
+    },
+    image: post.image
+      ? (post.image.startsWith('http') ? post.image : `https://offgrid.ke${post.image}`)
+      : 'https://offgrid.ke/og-default.jpg',
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `https://offgrid.ke/posts/${post.slug}`,
+    },
+    keywords: `${post.tag}, Kenya, off-grid, solar Kenya, ${post.title}`,
+    articleSection: post.tag,
+    inLanguage: 'en-KE',
+  }
+
   return (
     <div>
+      <SEOHead
+        title={post.title}
+        description={post.excerpt || `${post.title} — Kenya-specific guide from OFFGRID.KE`}
+        canonical={`/posts/${post.slug}`}
+        image={post.image}
+        type="article"
+        article={{ publishedTime: post.date, tag: post.tag }}
+        schema={articleSchema}
+      />
+
       {/* Breadcrumb */}
       <div style={{ background: 'var(--color-paper-2)', borderBottom: '1px solid var(--color-rule)', padding: '0.8rem 5%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.8rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', fontSize: '0.82rem', color: 'var(--color-muted)' }}>
@@ -30,11 +76,11 @@ export default function Post() {
       <article style={{ padding: '4rem 5% 6rem' }}>
         <div style={{ maxWidth: '740px', margin: '0 auto' }}>
 
-      {post.image && (
-        <div style={{ width: '100%', height: '280px', overflow: 'hidden', marginBottom: '2rem', borderRadius: '12px' }}>
-          <img src={post.image} alt={post.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        </div>
-      )}
+          {post.image && (
+            <div style={{ width: '100%', height: '280px', overflow: 'hidden', marginBottom: '2rem', borderRadius: '12px' }}>
+              <img src={post.image} alt={post.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+          )}
 
           <p style={{ fontFamily: 'var(--font-display)', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-muted)', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
             {post.tag} Guide · {post.readTime} read
@@ -64,7 +110,6 @@ export default function Post() {
             <span>✍️ Offgrid.ke</span>
           </div>
 
-          {/* Post content rendered from JS data */}
           <PostContent content={post.content} />
 
           {/* Footer CTA */}

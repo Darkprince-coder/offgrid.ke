@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
+import SEOHead from '../../components/SEOHead'
 
 const fmt  = (n) => 'KSh ' + Math.round(n).toLocaleString('en-KE')
 const fmtN = (n) => Math.round(n).toLocaleString('en-KE')
@@ -85,7 +86,11 @@ export default function CostComparison() {
 
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '3rem 5% 6rem' }}>
-
+<SEOHead
+  title="KPLC vs Solar vs Generator Cost Comparison Kenya 2026"
+  description="Compare the real 10-year cost of KPLC grid power, solar, and generator in Kenya. See payback periods and KSh savings with our free tool."
+  canonical="/tools/cost-comparison"
+/>
       {/* Header */}
       <div style={{ marginBottom: '2rem' }}>
         <div style={{ display: 'flex', gap: '0.5rem', fontSize: '0.75rem', marginBottom: '0.8rem' }}>

@@ -3,16 +3,64 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>OffGrid Kenya | Solar Tools, Guides & Off-Grid Living</title>
-    <meta name="description" content="Free guides, real local prices, and practical advice for homeowners, farmers, and small businesses going off-grid in Kenya." />
+
+    <!-- Primary meta — overridden dynamically by SEOHead.jsx per page -->
+    <title>OFFGRID.KE — Kenya's Free Off-Grid Guide</title>
+    <meta name="description" content="Thinking of going off-grid in Kenya? Get real solar costs, water solutions, and step-by-step guides to save money and avoid costly mistakes." />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <link rel="canonical" href="https://offgrid.ke/" />
+
+    <!-- Open Graph base (overridden per page) -->
+    <meta property="og:site_name"   content="OFFGRID.KE" />
+    <meta property="og:locale"      content="en_KE" />
+    <meta property="og:type"        content="website" />
+    <meta property="og:title"       content="Solar Cost in Kenya,Real Prices, No Guesswork" />
+    <meta property="og:description" content="Avoid overpriced solar setups. Learn real costs, smart sizing, and off-grid solutions that actually work in Kenya." />
+    <meta property="og:url"         content="https://offgrid.ke/" />
+    <meta property="og:image"       content="https://offgrid.ke/og-default.png" />
+    <meta property="og:image:width"  content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <!-- Twitter card -->
+    <meta name="twitter:card"        content="summary_large_image" />
+    <meta name="twitter:title"       content="Solar Cost in Kenya,Real Prices, No Guesswork" />
+    <meta name="twitter:description" content="Avoid overpriced solar setups. Learn real costs, smart sizing, and off-grid solutions that actually work in Kenya." />
+    <meta name="twitter:image"       content="https://offgrid.ke/og-default.png" />
+
+    <!-- Geo targeting for Kenya -->
+    <meta name="geo.region"   content="KE" />
+    <meta name="geo.placename" content="Kenya" />
+    <meta name="language"      content="English" />
+
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+
+    <!-- Favicon (add these files to /public) -->
+    <link rel="icon"             href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
+
+    <!-- Base JSON-LD (overridden per page by SEOHead) -->
+    <script id="json-ld-schema" type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "OFFGRID.KE",
+      "url": "https://offgrid.ke",
+      "description": "Free guides, real local prices, and practical advice for going off-grid in Kenya.",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://offgrid.ke/posts?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-    <!-- Netlify Identity — needed for CMS login redirects -->
+    <!-- Netlify Identity -->
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <script>
       if (window.netlifyIdentity) {
