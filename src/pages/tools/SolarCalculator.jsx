@@ -1,13 +1,15 @@
 import { useState, useMemo, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import SEOHead from '../../components/SEOHead'
 import {
   Lightbulb, Tv2, Radio, Laptop, Smartphone, Wifi,
   Refrigerator, Droplets, WashingMachine, Microwave,
   Coffee, Wind, Shirt, Camera, Sun, Printer,
   Battery, Zap, Wrench, Download, RotateCcw,
-  ChevronRight, MapPin, Check, AlertTriangle, BookOpen
+  ChevronRight, MapPin, Check, AlertTriangle, BookOpen,
+  Plus, Trash2, Edit3, ChevronDown, ChevronUp, Info
 } from 'lucide-react'
+
+// ── Constants ──────────────────────────────────────────────────────────────────
 
 const COUNTIES = [
   { name: 'Nairobi',               sunHours: 5.2 },
@@ -22,73 +24,77 @@ const COUNTIES = [
   { name: 'Kisii / Western',       sunHours: 4.6 },
 ]
 
+// Appliance presets — watts are now EDITABLE by the user
 const DEFAULT_APPLIANCES = [
-  { id:1,  Icon:Lightbulb,    name:'LED Bulbs (x8)',        watts:80,   hours:5,  surge:1.0, active:true  },
-  { id:2,  Icon:Tv2,          name:'TV 32 inch',             watts:60,   hours:5,  surge:1.0, active:true  },
-  { id:3,  Icon:Radio,        name:'Decoder / DStv',         watts:20,   hours:5,  surge:1.0, active:true  },
-  { id:4,  Icon:Laptop,       name:'Laptop',                 watts:60,   hours:4,  surge:1.0, active:true  },
-  { id:5,  Icon:Smartphone,   name:'Phone charging (x3)',    watts:30,   hours:2,  surge:1.0, active:true  },
-  { id:6,  Icon:Wifi,         name:'Wi-Fi Router',           watts:15,   hours:16, surge:1.0, active:true  },
-  { id:7,  Icon:Refrigerator, name:'Refrigerator 120L',      watts:80,   hours:24, surge:2.5, active:false },
-  { id:8,  Icon:Droplets,     name:'Water Pump 0.5HP',       watts:375,  hours:1,  surge:3.0, active:false },
-  { id:9,  Icon:WashingMachine,name:'Washing Machine',       watts:500,  hours:1,  surge:2.5, active:false },
-  { id:10, Icon:Microwave,    name:'Microwave',              watts:900,  hours:0.5,surge:1.2, active:false },
-  { id:11, Icon:Coffee,       name:'Electric Kettle',        watts:1500, hours:0.3,surge:1.0, active:false },
-  { id:12, Icon:Wind,         name:'Air Conditioner 1HP',    watts:900,  hours:4,  surge:3.0, active:false },
-  { id:13, Icon:Shirt,        name:'Iron Box',               watts:1000, hours:0.5,surge:1.0, active:false },
-  { id:14, Icon:Camera,       name:'Security Cameras (x4)',  watts:40,   hours:24, surge:1.0, active:false },
-  { id:15, Icon:Sun,          name:'Outdoor Lights (x4)',    watts:60,   hours:6,  surge:1.0, active:false },
-  { id:16, Icon:Printer,      name:'Printer / Copier',       watts:400,  hours:0.5,surge:1.5, active:false },
+  { id: 1,  Icon: Lightbulb,     name: 'LED Bulbs (×8)',         watts: 80,   hours: 5,   surge: 1.0, active: true,  category: 'lighting' },
+  { id: 2,  Icon: Tv2,           name: 'TV 32"',                 watts: 60,   hours: 5,   surge: 1.0, active: true,  category: 'entertainment' },
+  { id: 3,  Icon: Radio,         name: 'Decoder / DStv',         watts: 20,   hours: 5,   surge: 1.0, active: true,  category: 'entertainment' },
+  { id: 4,  Icon: Laptop,        name: 'Laptop',                 watts: 60,   hours: 4,   surge: 1.0, active: true,  category: 'office' },
+  { id: 5,  Icon: Smartphone,    name: 'Phone Charging (×3)',    watts: 30,   hours: 2,   surge: 1.0, active: true,  category: 'office' },
+  { id: 6,  Icon: Wifi,          name: 'Wi-Fi Router',           watts: 15,   hours: 16,  surge: 1.0, active: true,  category: 'office' },
+  { id: 7,  Icon: Refrigerator,  name: 'Refrigerator 120L',      watts: 80,   hours: 24,  surge: 2.5, active: false, category: 'kitchen' },
+  { id: 8,  Icon: Droplets,      name: 'Water Pump 0.5HP',       watts: 375,  hours: 1,   surge: 3.0, active: false, category: 'pump' },
+  { id: 9,  Icon: WashingMachine,name: 'Washing Machine',        watts: 500,  hours: 1,   surge: 2.5, active: false, category: 'kitchen' },
+  { id: 10, Icon: Microwave,     name: 'Microwave',              watts: 900,  hours: 0.5, surge: 1.2, active: false, category: 'kitchen' },
+  { id: 11, Icon: Coffee,        name: 'Electric Kettle',        watts: 1500, hours: 0.3, surge: 1.0, active: false, category: 'kitchen' },
+  { id: 12, Icon: Wind,          name: 'Air Conditioner 1HP',    watts: 900,  hours: 4,   surge: 3.0, active: false, category: 'cooling' },
+  { id: 13, Icon: Shirt,         name: 'Iron Box',               watts: 1000, hours: 0.5, surge: 1.0, active: false, category: 'kitchen' },
+  { id: 14, Icon: Camera,        name: 'Security Cameras (×4)',  watts: 40,   hours: 24,  surge: 1.0, active: false, category: 'security' },
+  { id: 15, Icon: Sun,           name: 'Outdoor Lights (×4)',    watts: 60,   hours: 6,   surge: 1.0, active: false, category: 'lighting' },
+  { id: 16, Icon: Printer,       name: 'Printer / Copier',       watts: 400,  hours: 0.5, surge: 1.5, active: false, category: 'office' },
 ]
 
 const PRICES = {
-  panel300:    15000,
-  panel400:    20000,
-  inverter3kw: 95000,
-  inverter5kw: 140000,
-  inverter8kw: 220000,
-  inverter12kw:320000,
-  battLead200: 35000,
-  battLiPo100: 120000,
-  mounting:    8000,
-  wiring:      22000,
-  installation:28000,
+  panel300:     15000,
+  panel400:     20000,
+  inverter3kw:  95000,
+  inverter5kw:  140000,
+  inverter8kw:  220000,
+  inverter12kw: 320000,
+  battLead200:  35000,
+  battLiPo100:  120000,
+  mounting:     8000,
+  wiring:       22000,
+  installation: 28000,
 }
 
-const fmt = (n) => 'KSh ' + Math.round(n).toLocaleString('en-KE')
+const fmt  = (n) => 'KSh ' + Math.round(n).toLocaleString('en-KE')
+const fmtN = (n) => Math.round(n).toLocaleString('en-KE')
 
-// ── Step bar ───────────────────────────────────────────
+// ── Watt reference hints shown in the watt input tooltip ──────────────────────
+const WATT_HINTS = {
+  1:  'Tip: Check label on bulb. LED: 5–15W each × 8 = 40–120W',
+  2:  'Tip: 32" TV ≈ 40–80W. 43" ≈ 80–120W. 55" ≈ 100–150W',
+  7:  'Tip: Check label on fridge. Small (100L) ≈ 60W, Medium ≈ 80W, Large (300L+) ≈ 120W',
+  8:  'Tip: 0.5HP pump ≈ 375W. 1HP ≈ 750W. Check motor nameplate.',
+  12: 'Tip: 1HP AC ≈ 900W. 1.5HP ≈ 1200W. 2HP ≈ 1500W',
+}
+
+// ── Sub-components ─────────────────────────────────────────────────────────────
+
 function StepBar({ step }) {
-  const steps = ['Appliances', 'Battery & Backup', 'Results']
+  const steps = ['Appliances', 'Battery & Backup', 'Your Results']
   return (
-    <div style={{ display:'flex', alignItems:'center', marginBottom:'2.5rem' }}>
-      <SEOHead
-  title="Free Solar System Calculator for Kenya — Panels, Batteries & Inverter"
-  description="Enter your appliances and county. Get an instant solar system recommendation with real Kenyan prices for panels, batteries, and inverter. Free tool, no sign-up."
-  canonical="/tools/solar-calculator"
-  schema={{
-    '@context': 'https://schema.org',
-    '@type': 'SoftwareApplication',
-    name: 'Kenya Solar System Calculator',
-    applicationCategory: 'UtilitiesApplication',
-    operatingSystem: 'Web',
-    offers: { '@type': 'Offer', price: '0', priceCurrency: 'KES' },
-    description: 'Free solar calculator for Kenya. Get panel, battery, and inverter recommendations with real KSh prices.',
-    url: 'https://offgrid.ke/tools/solar-calculator',
-  }}
-/>
+    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2.5rem' }}>
       {steps.map((s, i) => {
         const active = i + 1 === step
         const done   = i + 1 < step
         return (
-          <div key={s} style={{ display:'flex', alignItems:'center', flex: i < 2 ? 1 : 'none' }}>
-            <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:'0.3rem' }}>
-              <div style={{ width:36, height:36, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:700, fontSize:'0.9rem', background: done ? 'var(--color-sun)' : active ? 'var(--color-ink)' : 'var(--color-rule)', color: done || active ? '#fff' : 'var(--color-muted)', transition:'all 0.3s' }}>
+          <div key={s} style={{ display: 'flex', alignItems: 'center', flex: i < 2 ? 1 : 'none' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.3rem' }}>
+              <div style={{
+                width: 36, height: 36, borderRadius: '50%',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontWeight: 700, fontSize: '0.9rem',
+                background: done ? 'var(--color-sun)' : active ? 'var(--color-ink)' : 'var(--color-rule)',
+                color: done || active ? '#fff' : 'var(--color-muted)',
+                transition: 'all 0.3s',
+              }}>
                 {done ? <Check size={16} strokeWidth={3} /> : i + 1}
               </div>
-              <span style={{ fontSize:'0.7rem', fontWeight: active ? 700 : 500, color: active ? 'var(--color-ink)' : 'var(--color-muted)', whiteSpace:'nowrap' }}>{s}</span>
+              <span style={{ fontSize: '0.7rem', fontWeight: active ? 700 : 500, color: active ? 'var(--color-ink)' : 'var(--color-muted)', whiteSpace: 'nowrap' }}>{s}</span>
             </div>
-            {i < 2 && <div style={{ flex:1, height:2, background: done ? 'var(--color-sun)' : 'var(--color-rule)', margin:'0 0.5rem', marginBottom:'1.4rem', transition:'background 0.3s' }} />}
+            {i < 2 && <div style={{ flex: 1, height: 2, background: done ? 'var(--color-sun)' : 'var(--color-rule)', margin: '0 0.5rem', marginBottom: '1.4rem', transition: 'background 0.3s' }} />}
           </div>
         )
       })}
@@ -96,74 +102,173 @@ function StepBar({ step }) {
   )
 }
 
-// ── Result row ─────────────────────────────────────────
-function ResultRow({ label, value, sub }) {
+// Inline editable number field used for both watts and hours
+function InlineNumber({ value, onChange, min = 0, max, step = 1, suffix = '', warning = '' }) {
+  const [focused, setFocused] = useState(false)
   return (
-    <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', padding:'0.75rem 0', borderBottom:'1px solid var(--color-rule)', gap:'0.5rem' }}>
-      <div>
-        <div style={{ fontSize:'0.87rem', color:'var(--color-ink-2)', fontWeight:500 }}>{label}</div>
-        {sub && <div style={{ fontSize:'0.72rem', color:'var(--color-muted)', marginTop:'0.15rem' }}>{sub}</div>}
-      </div>
-      <span style={{ fontWeight:700, fontSize:'0.95rem', color:'var(--color-ink)', flexShrink:0 }}>{value}</span>
+    <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}>
+      <input
+        type="number"
+        value={value}
+        min={min}
+        max={max}
+        step={step}
+        onChange={e => onChange(Number(e.target.value) || 0)}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        style={{
+          width: suffix === 'W' ? 62 : 48,
+          padding: '0.25rem 0.4rem',
+          border: `1.5px solid ${focused ? 'var(--color-sun)' : warning ? '#e87c3e' : 'var(--color-rule)'}`,
+          borderRadius: 6,
+          fontSize: '0.83rem',
+          fontWeight: 600,
+          textAlign: 'center',
+          color: 'var(--color-ink)',
+          background: focused ? '#fffaf5' : 'var(--color-paper)',
+          outline: 'none',
+          transition: 'border-color 0.15s',
+        }}
+      />
+      {suffix && <span style={{ fontSize: '0.7rem', color: 'var(--color-muted)', fontWeight: 600 }}>{suffix}</span>}
     </div>
   )
 }
 
-// ── Component card ─────────────────────────────────────
-function ComponentCard({ Icon, title, spec, price, note, color='var(--color-sun)' }) {
+function ResultRow({ label, value, sub, highlight }) {
   return (
-    <div style={{ border:'1.5px solid var(--color-rule)', borderRadius:10, padding:'1rem', background:'#fff', borderLeft:`4px solid ${color}` }}>
-      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'0.5rem' }}>
-        <div style={{ width:36, height:36, borderRadius:8, background: color + '18', display:'flex', alignItems:'center', justifyContent:'center' }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '0.75rem 0', borderBottom: '1px solid var(--color-rule)', gap: '0.5rem' }}>
+      <div>
+        <div style={{ fontSize: '0.87rem', color: 'var(--color-ink-2)', fontWeight: 500 }}>{label}</div>
+        {sub && <div style={{ fontSize: '0.72rem', color: 'var(--color-muted)', marginTop: '0.15rem' }}>{sub}</div>}
+      </div>
+      <span style={{ fontWeight: 700, fontSize: '0.95rem', color: highlight ? 'var(--color-sun)' : 'var(--color-ink)', flexShrink: 0 }}>{value}</span>
+    </div>
+  )
+}
+
+function ComponentCard({ Icon, title, spec, price, note, color = 'var(--color-sun)' }) {
+  return (
+    <div style={{ border: '1.5px solid var(--color-rule)', borderRadius: 10, padding: '1rem', background: '#fff', borderLeft: `4px solid ${color}` }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+        <div style={{ width: 36, height: 36, borderRadius: 8, background: color + '18', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Icon size={18} strokeWidth={2.5} color={color} />
         </div>
-        <span style={{ fontSize:'0.72rem', fontWeight:700, color:'#fff', background:color, padding:'0.18rem 0.55rem', borderRadius:20 }}>{price}</span>
+        <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#fff', background: color, padding: '0.18rem 0.55rem', borderRadius: 20 }}>{price}</span>
       </div>
-      <div style={{ fontWeight:700, fontSize:'0.88rem', color:'var(--color-ink)', marginBottom:'0.18rem' }}>{title}</div>
-      <div style={{ fontSize:'0.82rem', color:color, fontWeight:600, marginBottom:'0.18rem' }}>{spec}</div>
-      {note && <div style={{ fontSize:'0.72rem', color:'var(--color-muted)' }}>{note}</div>}
+      <div style={{ fontWeight: 700, fontSize: '0.88rem', color: 'var(--color-ink)', marginBottom: '0.18rem' }}>{title}</div>
+      <div style={{ fontSize: '0.82rem', color: color, fontWeight: 600, marginBottom: '0.18rem' }}>{spec}</div>
+      {note && <div style={{ fontSize: '0.72rem', color: 'var(--color-muted)' }}>{note}</div>}
     </div>
   )
 }
 
-// ── Main calculator ────────────────────────────────────
+// Energy bar showing each appliance's share visually
+function EnergyBreakdownBar({ appliances }) {
+  const active = appliances.filter(a => a.active && a.watts > 0)
+  const total  = active.reduce((s, a) => s + a.watts * a.hours, 0)
+  if (total === 0 || active.length === 0) return null
+
+  const COLORS = ['#d4721a', '#1d5c7a', '#2d6a2d', '#7c3aed', '#c65d00', '#0e4a5e', '#b91c1c', '#1a4e1a']
+
+  return (
+    <div style={{ marginTop: '1rem', padding: '1rem', background: 'var(--color-paper-2)', borderRadius: 10, border: '1px solid var(--color-rule)' }}>
+      <div style={{ fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--color-muted)', marginBottom: '0.6rem' }}>
+        Daily energy breakdown — {(total / 1000).toFixed(2)} kWh total
+      </div>
+      {/* Stacked bar */}
+      <div style={{ display: 'flex', height: 14, borderRadius: 8, overflow: 'hidden', marginBottom: '0.7rem', gap: 1 }}>
+        {active.map((a, i) => {
+          const pct = ((a.watts * a.hours) / total) * 100
+          return pct > 1 ? (
+            <div key={a.id} title={`${a.name}: ${(a.watts * a.hours / 1000).toFixed(2)} kWh`}
+              style={{ width: `${pct}%`, background: COLORS[i % COLORS.length], transition: 'width 0.5s ease' }} />
+          ) : null
+        })}
+      </div>
+      {/* Legend — top 4 consumers */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+        {[...active]
+          .sort((a, b) => (b.watts * b.hours) - (a.watts * a.hours))
+          .slice(0, 5)
+          .map((a, i) => (
+            <span key={a.id} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.7rem', color: 'var(--color-ink-2)' }}>
+              <span style={{ width: 8, height: 8, borderRadius: 2, background: COLORS[i % COLORS.length], display: 'inline-block', flexShrink: 0 }} />
+              {a.name} ({(a.watts * a.hours / 1000).toFixed(2)} kWh)
+            </span>
+          ))}
+      </div>
+    </div>
+  )
+}
+
+// ── Main Calculator ────────────────────────────────────────────────────────────
+
 export default function SolarCalculator() {
-  const [step,        setStep]        = useState(1)
-  const [appliances,  setAppliances]  = useState(DEFAULT_APPLIANCES)
-  const [countyIdx,   setCountyIdx]   = useState(0)
-  const [battType,    setBattType]    = useState('lithium')
-  const [battDays,    setBattDays]    = useState(1)
-  const [customName,  setCustomName]  = useState('')
-  const [customW,     setCustomW]     = useState('')
-  const [customH,     setCustomH]     = useState('')
-  const [leadName,    setLeadName]    = useState('')
-  const [leadPhone,   setLeadPhone]   = useState('')
-  const [leadCounty,  setLeadCounty]  = useState('')
-  const [leadSent,    setLeadSent]    = useState(false)
-  const [leadLoading, setLeadLoading] = useState(false)
+  const [step,         setStep]         = useState(1)
+  const [appliances,   setAppliances]   = useState(DEFAULT_APPLIANCES)
+  const [countyIdx,    setCountyIdx]    = useState(0)
+  const [battType,     setBattType]     = useState('lithium')
+  const [battDays,     setBattDays]     = useState(1)
+  const [showAll,      setShowAll]      = useState(false)
+  const [editingId,    setEditingId]    = useState(null) // which appliance name is being edited
+  const [editingName,  setEditingName]  = useState('')
+  const [showAddForm,  setShowAddForm]  = useState(false)
+  const [customName,   setCustomName]   = useState('')
+  const [customW,      setCustomW]      = useState('')
+  const [customH,      setCustomH]      = useState('')
+  const [customSurge,  setCustomSurge]  = useState('1.2')
+  const [leadName,     setLeadName]     = useState('')
+  const [leadPhone,    setLeadPhone]    = useState('')
+  const [leadCounty,   setLeadCounty]   = useState('')
+  const [leadSent,     setLeadSent]     = useState(false)
+  const [leadLoading,  setLeadLoading]  = useState(false)
   const [resultsVisible, setResultsVisible] = useState(false)
+  const [showHint,     setShowHint]     = useState(null)
   const resultsRef = useRef(null)
 
   const county   = COUNTIES[countyIdx]
   const sunHours = county.sunHours
 
-  const toggle   = (id) => setAppliances(p => p.map(a => a.id===id ? {...a, active:!a.active} : a))
-  const setHours = (id, v) => setAppliances(p => p.map(a => a.id===id ? {...a, hours:Math.max(0, Math.min(24, Number(v)||0))} : a))
-  const removeApp = (id) => setAppliances(p => p.filter(a => a.id !== id))
+  // ── Appliance mutation helpers ─────────────────────────────────────────────
+  const toggle    = (id) => setAppliances(p => p.map(a => a.id === id ? { ...a, active: !a.active } : a))
+  const setWatts  = (id, v) => setAppliances(p => p.map(a => a.id === id ? { ...a, watts: Math.max(0, Math.min(10000, v)) } : a))
+  const setHours  = (id, v) => setAppliances(p => p.map(a => a.id === id ? { ...a, hours: Math.max(0, Math.min(24, v)) } : a))
+  const removeApp = (id)    => setAppliances(p => p.filter(a => a.id !== id))
+
+  const saveEditName = (id) => {
+    if (editingName.trim()) setAppliances(p => p.map(a => a.id === id ? { ...a, name: editingName.trim() } : a))
+    setEditingId(null)
+  }
+
   const addCustom = () => {
-    if (!customName || !customW || !customH) return
-    setAppliances(p => [...p, { id:Date.now(), Icon:Zap, name:customName, watts:Number(customW), hours:Number(customH), surge:1.2, active:true }])
-    setCustomName(''); setCustomW(''); setCustomH('')
+    if (!customName.trim() || !customW || !customH) return
+    const newApp = {
+      id: Date.now(), Icon: Zap, name: customName.trim(),
+      watts: Number(customW), hours: Number(customH),
+      surge: Number(customSurge) || 1.2, active: true, category: 'custom',
+    }
+    setAppliances(p => [...p, newApp])
+    setCustomName(''); setCustomW(''); setCustomH(''); setCustomSurge('1.2')
+    setShowAddForm(false)
   }
 
   const goToResults = () => {
     setStep(3)
-    setTimeout(() => { setResultsVisible(true); resultsRef.current?.scrollIntoView({ behavior:'smooth', block:'start' }) }, 50)
+    setTimeout(() => { setResultsVisible(true); resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }, 50)
   }
 
+  // Show active appliances first, then inactive; limit if showAll = false
+  const sortedAppliances = [
+    ...appliances.filter(a => a.active),
+    ...appliances.filter(a => !a.active),
+  ]
+  const visibleAppliances = showAll ? sortedAppliances : sortedAppliances.slice(0, 10)
+
+  // ── Calculations ───────────────────────────────────────────────────────────
   const R = useMemo(() => {
-    const active      = appliances.filter(a => a.active)
-    const dailyWh     = active.reduce((s,a) => s + a.watts * a.hours, 0)
+    const active      = appliances.filter(a => a.active && a.watts > 0 && a.hours > 0)
+    const dailyWh     = active.reduce((s, a) => s + a.watts * a.hours, 0)
     const dailyWhAdj  = dailyWh * 1.25
     const solarW      = dailyWhAdj / sunHours
     const panels300   = Math.ceil(solarW / 300)
@@ -173,10 +278,10 @@ export default function SolarCalculator() {
     const inverterMinKw = Math.max(solarW, peakSurge) * 1.25 / 1000
 
     let inverterKw, inverterCost, inverterLabel
-    if      (inverterMinKw <= 3)  { inverterKw=3;  inverterCost=PRICES.inverter3kw;  inverterLabel='3kW Hybrid (Growatt / Deye)' }
-    else if (inverterMinKw <= 5)  { inverterKw=5;  inverterCost=PRICES.inverter5kw;  inverterLabel='5kW Hybrid (Growatt / Deye)' }
-    else if (inverterMinKw <= 8)  { inverterKw=8;  inverterCost=PRICES.inverter8kw;  inverterLabel='8kW Hybrid (Deye)' }
-    else                           { inverterKw=12; inverterCost=PRICES.inverter12kw; inverterLabel='12kW Hybrid (Deye / Victron)' }
+    if      (inverterMinKw <= 3)  { inverterKw = 3;  inverterCost = PRICES.inverter3kw;  inverterLabel = '3kW Hybrid (Growatt / Deye)' }
+    else if (inverterMinKw <= 5)  { inverterKw = 5;  inverterCost = PRICES.inverter5kw;  inverterLabel = '5kW Hybrid (Growatt / Deye)' }
+    else if (inverterMinKw <= 8)  { inverterKw = 8;  inverterCost = PRICES.inverter8kw;  inverterLabel = '8kW Hybrid (Deye)' }
+    else                          { inverterKw = 12; inverterCost = PRICES.inverter12kw; inverterLabel = '12kW Hybrid (Deye / Victron)' }
 
     const battWhNeeded = dailyWhAdj * battDays
     let battCount, battCostEach, battTotalCost, battLabel, battSpec
@@ -184,178 +289,387 @@ export default function SolarCalculator() {
       battCount     = Math.ceil(battWhNeeded / (24 * 100 * 0.9))
       battCostEach  = PRICES.battLiPo100
       battTotalCost = battCount * battCostEach
-      battLabel     = `${battCount} x 100Ah LiFePO4 (24V)`
+      battLabel     = `${battCount} × 100Ah LiFePO4 (24V)`
       battSpec      = `${(battCount * 24 * 100 * 0.9 / 1000).toFixed(1)} kWh usable`
     } else {
       battCount     = Math.ceil(battWhNeeded / (12 * 200 * 0.5))
       battCostEach  = PRICES.battLead200
       battTotalCost = battCount * battCostEach
-      battLabel     = `${battCount} x 200Ah Lead-Acid (12V)`
+      battLabel     = `${battCount} × 200Ah Lead-Acid (12V)`
       battSpec      = `${(battCount * 12 * 200 * 0.5 / 1000).toFixed(1)} kWh usable`
     }
 
-    const panelCost300  = panels300 * PRICES.panel300
-    const panelCost400  = panels400 * PRICES.panel400
-    const extras        = PRICES.mounting + PRICES.wiring + PRICES.installation
-    const total300      = panelCost300 + inverterCost + battTotalCost + extras
-    const total400      = panelCost400 + inverterCost + battTotalCost + extras
-    const monthlyKplc   = (dailyWh / 1000) * 30 * 26
+    const panelCost300 = panels300 * PRICES.panel300
+    const panelCost400 = panels400 * PRICES.panel400
+    const extras       = PRICES.mounting + PRICES.wiring + PRICES.installation
+    const total300     = panelCost300 + inverterCost + battTotalCost + extras
+    const total400     = panelCost400 + inverterCost + battTotalCost + extras
+    const monthlyKplc  = (dailyWh / 1000) * 30 * 26
     const monthlySaving = monthlyKplc * 0.8
-    const paybackYrs    = monthlySaving > 0 ? (total300 / monthlySaving / 12).toFixed(1) : null
-    const tenYrSaving   = monthlySaving * 120 - total300
+    const paybackYrs   = monthlySaving > 0 ? (total300 / monthlySaving / 12).toFixed(1) : null
+    const tenYrSaving  = monthlySaving * 120 - total300
 
-    return { dailyWh:Math.round(dailyWh), dailyWhAdj:Math.round(dailyWhAdj), solarW:Math.round(solarW), panels300, panels400, totalKwp, peakSurge:Math.round(peakSurge), inverterKw, inverterLabel, inverterCost, battLabel, battSpec, battTotalCost, panelCost300, panelCost400, extras, total300, total400, monthlyKplc:Math.round(monthlyKplc), monthlySaving:Math.round(monthlySaving), paybackYrs, tenYrSaving:Math.round(tenYrSaving) }
+    // Top consumers for display
+    const topConsumers = [...active]
+      .sort((a, b) => (b.watts * b.hours) - (a.watts * a.hours))
+      .slice(0, 3)
+
+    return {
+      dailyWh: Math.round(dailyWh), dailyWhAdj: Math.round(dailyWhAdj),
+      solarW: Math.round(solarW), panels300, panels400, totalKwp, peakSurge: Math.round(peakSurge),
+      inverterKw, inverterLabel, inverterCost,
+      battLabel, battSpec, battTotalCost,
+      panelCost300, panelCost400, extras, total300, total400,
+      monthlyKplc: Math.round(monthlyKplc), monthlySaving: Math.round(monthlySaving),
+      paybackYrs, tenYrSaving: Math.round(tenYrSaving), topConsumers,
+      activeCount: active.length,
+    }
   }, [appliances, sunHours, battType, battDays])
 
-  const activeCount = appliances.filter(a => a.active).length
-
   const downloadResults = () => {
-    const text = `OFFGRID.KE — Solar System Estimate\nGenerated: ${new Date().toLocaleDateString('en-KE', { dateStyle:'long' })}\nCounty: ${county.name}\n${'='.repeat(60)}\n\nYOUR DAILY ENERGY NEEDS\nDaily usage:          ${(R.dailyWh/1000).toFixed(2)} kWh\nAfter 25% losses:     ${(R.dailyWhAdj/1000).toFixed(2)} kWh\nSolar capacity needed: ${R.solarW}W\nPeak surge load:      ${R.peakSurge}W\n\nRECOMMENDED SYSTEM\nSolar Panels:  ${R.panels300} x 300W panels (${R.totalKwp.toFixed(1)} kWp total)\nInverter:      ${R.inverterLabel}\nBatteries:     ${R.battLabel} — ${R.battSpec}\nBattery backup: ${battDays} day(s)\n\nESTIMATED COST BREAKDOWN\nPanels:              ${fmt(R.panelCost300)}\nInverter:            ${fmt(R.inverterCost)}\nBatteries:           ${fmt(R.battTotalCost)}\nMounting + wiring:   ${fmt(PRICES.mounting + PRICES.wiring)}\nInstallation:        ${fmt(PRICES.installation)}\n${'─'.repeat(40)}\nTOTAL ESTIMATE:      ${fmt(R.total300)}\n\nRETURN ON INVESTMENT\nEst. monthly KPLC bill:    ${fmt(R.monthlyKplc)}\nMonthly savings (80%):     ${fmt(R.monthlySaving)}\nPayback period:            ~${R.paybackYrs} years\n10-year net savings:       ${fmt(R.tenYrSaving)}\n\n${'='.repeat(60)}\nDISCLAIMER: Estimates based on average Kenyan market prices (2026-2026).\nActual costs depend on your site, installer, and equipment brand.\nAlways get at least 3 quotes from certified installers.\n\nSource: offgrid.ke/tools/solar-calculator\nData: Kenya Power tariffs, Kenya Meteorological Dept irradiance data,\n      Nairobi market price survey 2026.\n`
-    const blob = new Blob([text], { type:'text/plain' })
+    const activeList = appliances.filter(a => a.active && a.watts > 0)
+      .map(a => `  ${a.name.padEnd(28)} ${String(a.watts + 'W').padEnd(8)} × ${a.hours}h/day = ${Math.round(a.watts * a.hours)}Wh`)
+      .join('\n')
+    const text = `OFFGRID.KE — Solar System Estimate
+Generated: ${new Date().toLocaleDateString('en-KE', { dateStyle: 'long' })}
+County: ${county.name}
+${'='.repeat(60)}
+
+YOUR APPLIANCES
+${activeList}
+
+DAILY ENERGY NEEDS
+Daily usage (actual):   ${(R.dailyWh / 1000).toFixed(2)} kWh
+After 25% losses:       ${(R.dailyWhAdj / 1000).toFixed(2)} kWh
+Solar capacity needed:  ${R.solarW}W
+Peak surge load:        ${R.peakSurge}W
+
+RECOMMENDED SYSTEM
+Solar Panels:   ${R.panels300} × 300W (${R.totalKwp.toFixed(1)} kWp total)
+Inverter:       ${R.inverterLabel}
+Batteries:      ${R.battLabel} — ${R.battSpec}
+Battery backup: ${battDays} day(s)
+
+COST BREAKDOWN
+Panels:              ${fmt(R.panelCost300)}
+Inverter:            ${fmt(R.inverterCost)}
+Batteries:           ${fmt(R.battTotalCost)}
+Mounting + wiring:   ${fmt(PRICES.mounting + PRICES.wiring)}
+Installation:        ${fmt(PRICES.installation)}
+${'─'.repeat(40)}
+TOTAL ESTIMATE:      ${fmt(R.total300)}
+
+RETURN ON INVESTMENT
+Est. monthly KPLC bill:  ${fmt(R.monthlyKplc)}
+Monthly savings (80%):   ${fmt(R.monthlySaving)}
+Payback period:          ~${R.paybackYrs} years
+10-year net savings:     ${fmt(R.tenYrSaving)}
+
+${'='.repeat(60)}
+Estimates based on Nairobi market prices (March 2026).
+Always get at least 3 quotes from certified installers.
+Source: offgrid.ke/tools/solar-calculator
+`
+    const blob = new Blob([text], { type: 'text/plain' })
     const url  = URL.createObjectURL(blob)
     const a    = document.createElement('a')
     a.href = url; a.download = 'offgrid-ke-solar-estimate.txt'; a.click()
     URL.revokeObjectURL(url)
   }
 
-  const inputStyle  = { width:'100%', padding:'0.6rem 0.85rem', borderRadius:'7px', border:'1.5px solid var(--color-rule)', fontSize:'0.9rem', background:'var(--color-paper)', color:'var(--color-ink)', outline:'none', boxSizing:'border-box' }
-  const btnPrimary  = { background:'var(--color-sun)', color:'#fff', border:'none', padding:'0.85rem 1.8rem', borderRadius:'9px', fontWeight:700, fontSize:'0.95rem', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:'0.5rem', width:'100%' }
-  const btnSecondary = { background:'var(--color-paper-2)', color:'var(--color-ink-2)', border:'1px solid var(--color-rule)', padding:'0.75rem 1.4rem', borderRadius:'9px', fontWeight:600, fontSize:'0.9rem', cursor:'pointer', display:'flex', alignItems:'center', gap:'0.4rem' }
+  // ── Styles ─────────────────────────────────────────────────────────────────
+  const inputStyle   = { width: '100%', padding: '0.6rem 0.85rem', borderRadius: '7px', border: '1.5px solid var(--color-rule)', fontSize: '0.9rem', background: 'var(--color-paper)', color: 'var(--color-ink)', outline: 'none', boxSizing: 'border-box' }
+  const btnPrimary   = { background: 'var(--color-sun)', color: '#fff', border: 'none', padding: '0.85rem 1.8rem', borderRadius: '9px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', width: '100%' }
+  const btnSecondary = { background: 'var(--color-paper-2)', color: 'var(--color-ink-2)', border: '1px solid var(--color-rule)', padding: '0.75rem 1.4rem', borderRadius: '9px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }
 
+  // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div style={{ maxWidth:'1120px', margin:'0 auto', padding:'3rem 5% 6rem' }}>
+    <div style={{ maxWidth: '1120px', margin: '0 auto', padding: '3rem 5% 6rem' }}>
 
       {/* Header */}
-      <div style={{ marginBottom:'2rem' }}>
-        <div style={{ display:'flex', gap:'0.5rem', fontSize:'0.75rem', marginBottom:'0.8rem', flexWrap:'wrap', alignItems:'center' }}>
-          <Link to="/" style={{ color:'var(--color-sky)', fontWeight:600 }}>Home</Link>
+      <div style={{ marginBottom: '2rem' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', fontSize: '0.75rem', marginBottom: '0.8rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          <Link to="/" style={{ color: 'var(--color-sky)', fontWeight: 600 }}>Home</Link>
           <ChevronRight size={12} color="var(--color-muted)" />
-          <span style={{ color:'var(--color-muted)' }}>Tools</span>
+          <span style={{ color: 'var(--color-muted)' }}>Tools</span>
           <ChevronRight size={12} color="var(--color-muted)" />
-          <span style={{ color:'var(--color-muted)' }}>Solar Calculator</span>
+          <span style={{ color: 'var(--color-muted)' }}>Solar Calculator</span>
         </div>
-        <span style={{ fontSize:'0.67rem', fontWeight:700, letterSpacing:'2px', textTransform:'uppercase', color:'var(--color-sun)', display:'block', marginBottom:'0.5rem' }}>Free Tool — Updated March 2026</span>
-        <h1 style={{ fontFamily:'var(--font-display)', fontSize:'clamp(1.9rem,3.5vw,2.8rem)', fontWeight:800, letterSpacing:'-1px', color:'var(--color-ink)', marginBottom:'0.7rem', lineHeight:1.1 }}>
+        <span style={{ fontSize: '0.67rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--color-sun)', display: 'block', marginBottom: '0.5rem' }}>Free Tool — Updated March 2026</span>
+        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.9rem,3.5vw,2.8rem)', fontWeight: 800, letterSpacing: '-1px', color: 'var(--color-ink)', marginBottom: '0.7rem', lineHeight: 1.1 }}>
           Solar System Calculator
         </h1>
-        <p style={{ color:'var(--color-muted)', fontSize:'0.98rem', lineHeight:1.72, maxWidth:'560px' }}>
-          Tell us what you want to power. Get a complete system recommendation with panels, batteries, and inverter sized for your home, with real Kenyan prices.
+        <p style={{ color: 'var(--color-muted)', fontSize: '0.98rem', lineHeight: 1.72, maxWidth: '560px' }}>
+          Enter your appliances — edit the wattage to match your actual devices. Get a complete system recommendation with real Kenyan prices.
         </p>
       </div>
 
       <StepBar step={step} />
 
-      <div style={{ display:'grid', gridTemplateColumns:'minmax(0,1.15fr) minmax(0,1fr)', gap:'2.5rem', alignItems:'start' }} className="calc-grid">
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1.15fr) minmax(0,1fr)', gap: '2.5rem', alignItems: 'start' }} className="calc-grid">
 
-        {/* LEFT: Steps */}
+        {/* ── LEFT COLUMN ──────────────────────────────────────────────────── */}
         <div>
 
-          {/* Step 1 */}
-          <div style={{ background:'#fff', border:'1.5px solid var(--color-rule)', borderRadius:'14px', overflow:'hidden', marginBottom:'1.5rem' }}>
-            <div style={{ background:'var(--color-ink)', padding:'1rem 1.5rem', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-              <h2 style={{ fontFamily:'var(--font-display)', fontSize:'1rem', fontWeight:700, color:'#fff', margin:0, display:'flex', alignItems:'center', gap:'0.5rem' }}>
+          {/* STEP 1 */}
+          <div style={{ background: '#fff', border: '1.5px solid var(--color-rule)', borderRadius: '14px', overflow: 'hidden', marginBottom: '1.5rem' }}>
+
+            {/* Step header */}
+            <div style={{ background: 'var(--color-ink)', padding: '1rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1rem', fontWeight: 700, color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Zap size={16} strokeWidth={2.5} color="var(--color-sun)" /> Step 1 — Your Appliances
               </h2>
-              <span style={{ background:'rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.6)', fontSize:'0.72rem', padding:'0.2rem 0.65rem', borderRadius:20 }}>{activeCount} selected</span>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                {R.dailyWh > 0 && (
+                  <span style={{ background: 'var(--color-sun)', color: '#fff', fontSize: '0.72rem', fontWeight: 700, padding: '0.2rem 0.65rem', borderRadius: 20 }}>
+                    {(R.dailyWh / 1000).toFixed(2)} kWh/day
+                  </span>
+                )}
+                <span style={{ background: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.6)', fontSize: '0.72rem', padding: '0.2rem 0.65rem', borderRadius: 20 }}>
+                  {R.activeCount} selected
+                </span>
+              </div>
             </div>
 
-            <div style={{ padding:'1.2rem 1.5rem' }}>
-              <div style={{ marginBottom:'1.2rem' }}>
-                <label style={{ display:'flex', alignItems:'center', gap:'0.4rem', fontWeight:600, fontSize:'0.84rem', color:'var(--color-ink)', marginBottom:'0.45rem' }}>
+            <div style={{ padding: '1.2rem 1.5rem' }}>
+
+              {/* County selector */}
+              <div style={{ marginBottom: '1.2rem' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 600, fontSize: '0.84rem', color: 'var(--color-ink)', marginBottom: '0.45rem' }}>
                   <MapPin size={14} strokeWidth={2.5} color="var(--color-sun)" /> Your county or region
                 </label>
                 <select value={countyIdx} onChange={e => setCountyIdx(Number(e.target.value))} style={inputStyle}>
-                  {COUNTIES.map((c,i) => <option key={i} value={i}>{c.name} — {c.sunHours} sun hrs/day</option>)}
+                  {COUNTIES.map((c, i) => (
+                    <option key={i} value={i}>{c.name} — {c.sunHours} sun hrs/day</option>
+                  ))}
                 </select>
               </div>
 
-              <label style={{ display:'block', fontWeight:600, fontSize:'0.84rem', color:'var(--color-ink)', marginBottom:'0.6rem' }}>Select appliances and set daily usage hours</label>
-              <div style={{ border:'1px solid var(--color-rule)', borderRadius:'8px', overflow:'hidden' }}>
-                {appliances.map((a, idx) => (
-                  <div key={a.id} style={{ display:'flex', alignItems:'center', gap:'0.6rem', padding:'0.6rem 0.9rem', borderBottom: idx < appliances.length-1 ? '1px solid var(--color-rule)' : 'none', background: a.active ? '#fff' : 'var(--color-paper)', transition:'background 0.15s' }}>
-                    <input type="checkbox" checked={a.active} onChange={() => toggle(a.id)} id={`a${a.id}`}
-                      style={{ width:15, height:15, accentColor:'var(--color-sun)', cursor:'pointer', flexShrink:0 }} />
-                    <label htmlFor={`a${a.id}`} style={{ display:'flex', alignItems:'center', gap:'0.45rem', flex:1, cursor:'pointer', userSelect:'none', minWidth:0 }}>
-                      <div style={{ width:26, height:26, borderRadius:6, background: a.active ? 'var(--color-paper-2)' : 'transparent', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                        <a.Icon size={14} strokeWidth={2.5} color={ a.active ? 'var(--color-sun)' : 'var(--color-muted)'} />
-                      </div>
-                      <span style={{ fontSize:'0.85rem', color: a.active ? 'var(--color-ink)' : 'var(--color-muted)', fontWeight: a.active ? 500 : 400, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
-                        {a.name}
-                        <span style={{ fontSize:'0.72rem', color:'var(--color-muted)', fontWeight:400, marginLeft:'0.35rem' }}>
-                          {a.watts}W{a.surge > 1 ? `, surge x${a.surge}` : ''}
-                        </span>
-                      </span>
-                    </label>
-                    {a.active && (
-                      <div style={{ display:'flex', alignItems:'center', gap:'0.3rem', flexShrink:0 }}>
-                        <input type="number" value={a.hours} min="0" max="24" step="0.5" onChange={e => setHours(a.id, e.target.value)}
-                          style={{ width:50, padding:'0.22rem 0.35rem', border:'1.5px solid var(--color-rule)', borderRadius:5, fontSize:'0.83rem', textAlign:'center', color:'var(--color-ink)', background:'var(--color-paper)' }} />
-                        <span style={{ fontSize:'0.7rem', color:'var(--color-muted)', whiteSpace:'nowrap' }}>hr/day</span>
-                      </div>
-                    )}
-                    {a.id > 16 && (
-                      <button onClick={() => removeApp(a.id)} style={{ background:'none', border:'none', color:'#c0392b', cursor:'pointer', padding:'0 0.1rem', lineHeight:1, flexShrink:0, display:'flex' }}>
-                        <X size={14} strokeWidth={2.5} />
-                      </button>
-                    )}
-                  </div>
-                ))}
+              {/* Column headers */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 72px 56px 44px', gap: '0.4rem', alignItems: 'center', padding: '0 0.9rem 0.4rem', marginBottom: '0.2rem' }}>
+                <span style={{ fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.7px', color: 'var(--color-muted)' }}>Appliance</span>
+                <span style={{ fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.7px', color: 'var(--color-muted)', textAlign: 'center' }}>Watts</span>
+                <span style={{ fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.7px', color: 'var(--color-muted)', textAlign: 'center' }}>Hrs/day</span>
+                <span style={{ fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.7px', color: 'var(--color-muted)', textAlign: 'center' }}>Wh</span>
               </div>
 
-              {/* Add custom */}
-              <div style={{ marginTop:'1rem', paddingTop:'1rem', borderTop:'1px dashed var(--color-rule)' }}>
-                <p style={{ fontSize:'0.75rem', fontWeight:700, color:'var(--color-muted)', textTransform:'uppercase', letterSpacing:'0.8px', marginBottom:'0.55rem' }}>Add custom appliance</p>
-                <div style={{ display:'flex', gap:'0.45rem', flexWrap:'wrap' }}>
-                  <input type="text"   value={customName} onChange={e=>setCustomName(e.target.value)} placeholder="Name" style={{ flex:'2 1 100px', padding:'0.42rem 0.65rem', border:'1.5px solid var(--color-rule)', borderRadius:'6px', fontSize:'0.83rem', background:'var(--color-paper)', color:'var(--color-ink)', outline:'none' }} />
-                  <input type="number" value={customW}    onChange={e=>setCustomW(e.target.value)}    placeholder="Watts" style={{ flex:'1 1 60px', padding:'0.42rem 0.5rem', border:'1.5px solid var(--color-rule)', borderRadius:'6px', fontSize:'0.83rem', background:'var(--color-paper)', color:'var(--color-ink)', outline:'none' }} />
-                  <input type="number" value={customH}    onChange={e=>setCustomH(e.target.value)}    placeholder="Hrs" style={{ flex:'1 1 55px', padding:'0.42rem 0.5rem', border:'1.5px solid var(--color-rule)', borderRadius:'6px', fontSize:'0.83rem', background:'var(--color-paper)', color:'var(--color-ink)', outline:'none' }} />
-                  <button onClick={addCustom} style={{ background:'var(--color-ink)', color:'#fff', border:'none', padding:'0.42rem 0.9rem', borderRadius:'6px', fontSize:'0.83rem', fontWeight:600, cursor:'pointer', whiteSpace:'nowrap' }}>Add</button>
+              {/* Appliance rows */}
+              <div style={{ border: '1px solid var(--color-rule)', borderRadius: '8px', overflow: 'hidden' }}>
+                {visibleAppliances.map((a, idx) => {
+                  const wh      = Math.round(a.watts * a.hours)
+                  const isLast  = idx === visibleAppliances.length - 1
+                  const isCustom = a.id > 16
+                  const highWatts = a.active && a.watts > 2000
+
+                  return (
+                    <div key={a.id} style={{
+                      display: 'grid', gridTemplateColumns: '1fr 72px 56px 44px',
+                      alignItems: 'center', gap: '0.4rem',
+                      padding: '0.5rem 0.9rem',
+                      borderBottom: !isLast ? '1px solid var(--color-rule)' : 'none',
+                      background: a.active ? '#fff' : 'var(--color-paper)',
+                      transition: 'background 0.15s',
+                    }}>
+
+                      {/* Name + checkbox */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0 }}>
+                        <input type="checkbox" checked={a.active} onChange={() => toggle(a.id)}
+                          style={{ width: 15, height: 15, accentColor: 'var(--color-sun)', cursor: 'pointer', flexShrink: 0 }} />
+                        <div style={{ width: 24, height: 24, borderRadius: 5, background: a.active ? 'var(--color-paper-2)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <a.Icon size={13} strokeWidth={2.5} color={a.active ? 'var(--color-sun)' : 'var(--color-muted)'} />
+                        </div>
+
+                        {/* Editable name */}
+                        {editingId === a.id ? (
+                          <input
+                            autoFocus
+                            value={editingName}
+                            onChange={e => setEditingName(e.target.value)}
+                            onBlur={() => saveEditName(a.id)}
+                            onKeyDown={e => e.key === 'Enter' && saveEditName(a.id)}
+                            style={{ flex: 1, fontSize: '0.83rem', padding: '0.18rem 0.35rem', border: '1.5px solid var(--color-sun)', borderRadius: 5, outline: 'none', minWidth: 0, color: 'var(--color-ink)', background: '#fffaf5' }}
+                          />
+                        ) : (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', minWidth: 0, flex: 1 }}>
+                            <span
+                              onClick={() => { setEditingId(a.id); setEditingName(a.name) }}
+                              style={{ fontSize: '0.83rem', color: a.active ? 'var(--color-ink)' : 'var(--color-muted)', fontWeight: a.active ? 500 : 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'text', flex: 1 }}
+                              title="Click to rename"
+                            >
+                              {a.name}
+                            </span>
+                            {/* Watt hint tooltip trigger */}
+                            {WATT_HINTS[a.id] && (
+                              <button onClick={() => setShowHint(showHint === a.id ? null : a.id)}
+                                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--color-muted)', display: 'flex', flexShrink: 0 }}>
+                                <Info size={11} strokeWidth={2.5} />
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Editable Watts */}
+                      <div style={{ position: 'relative' }}>
+                        {a.active ? (
+                          <InlineNumber
+                            value={a.watts}
+                            onChange={v => setWatts(a.id, v)}
+                            min={0} max={10000} step={10}
+                            suffix="W"
+                            warning={highWatts}
+                          />
+                        ) : (
+                          <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)', display: 'block', textAlign: 'center' }}>{a.watts}W</span>
+                        )}
+                      </div>
+
+                      {/* Editable Hours */}
+                      <div>
+                        {a.active ? (
+                          <InlineNumber value={a.hours} onChange={v => setHours(a.id, v)} min={0} max={24} step={0.5} suffix="h" />
+                        ) : (
+                          <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)', display: 'block', textAlign: 'center' }}>{a.hours}h</span>
+                        )}
+                      </div>
+
+                      {/* Daily Wh output */}
+                      <div style={{ textAlign: 'center' }}>
+                        {a.active && wh > 0 ? (
+                          <span style={{ fontSize: '0.72rem', fontWeight: 700, color: wh > 2000 ? '#c65d00' : 'var(--color-sky)' }}>{fmtN(wh)}</span>
+                        ) : (
+                          <span style={{ fontSize: '0.7rem', color: 'var(--color-rule)' }}>—</span>
+                        )}
+                      </div>
+
+                      {/* Delete custom appliances */}
+                      {isCustom && (
+                        <button onClick={() => removeApp(a.id)} style={{ gridColumn: 'span 0', background: 'none', border: 'none', color: '#c0392b', cursor: 'pointer', padding: 0, position: 'absolute', right: '0.5rem', display: 'flex' }}>
+                          <Trash2 size={13} strokeWidth={2.5} />
+                        </button>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+
+              {/* Watt hint tooltip */}
+              {showHint && WATT_HINTS[showHint] && (
+                <div style={{ marginTop: '0.5rem', background: '#fffaf0', border: '1px solid #f5d9c0', borderLeft: '3px solid var(--color-sun)', borderRadius: 8, padding: '0.6rem 0.9rem', fontSize: '0.78rem', color: 'var(--color-ink-2)', lineHeight: 1.6 }}>
+                  💡 {WATT_HINTS[showHint]}
                 </div>
+              )}
+
+              {/* Show more/less */}
+              {appliances.length > 10 && (
+                <button onClick={() => setShowAll(p => !p)}
+                  style={{ width: '100%', marginTop: '0.5rem', background: 'none', border: '1px dashed var(--color-rule)', borderRadius: 7, padding: '0.45rem', fontSize: '0.8rem', color: 'var(--color-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem' }}>
+                  {showAll ? <><ChevronUp size={14} strokeWidth={2.5} /> Show fewer appliances</> : <><ChevronDown size={14} strokeWidth={2.5} /> Show all {appliances.length} appliances</>}
+                </button>
+              )}
+
+              {/* Energy breakdown bar */}
+              <EnergyBreakdownBar appliances={appliances} />
+
+              {/* Add custom appliance */}
+              <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px dashed var(--color-rule)' }}>
+                {!showAddForm ? (
+                  <button onClick={() => setShowAddForm(true)}
+                    style={{ width: '100%', background: 'var(--color-paper-2)', border: '1.5px dashed var(--color-rule)', borderRadius: 8, padding: '0.6rem', fontSize: '0.83rem', fontWeight: 600, color: 'var(--color-ink-2)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}>
+                    <Plus size={15} strokeWidth={2.5} /> Add custom appliance
+                  </button>
+                ) : (
+                  <div style={{ background: 'var(--color-paper-2)', border: '1.5px solid var(--color-rule)', borderRadius: 10, padding: '1rem' }}>
+                    <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-ink)', marginBottom: '0.7rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      <Plus size={13} strokeWidth={2.5} color="var(--color-sun)" /> Add custom appliance
+                    </p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      <input type="text" value={customName} onChange={e => setCustomName(e.target.value)}
+                        placeholder="Appliance name (e.g. CCTV DVR)" style={{ ...inputStyle, fontSize: '0.85rem' }} />
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem' }}>
+                        <div>
+                          <label style={{ fontSize: '0.72rem', color: 'var(--color-muted)', display: 'block', marginBottom: '0.2rem', fontWeight: 600 }}>Watts (W) *</label>
+                          <input type="number" value={customW} onChange={e => setCustomW(e.target.value)} placeholder="e.g. 150"
+                            style={{ ...inputStyle, fontSize: '0.85rem' }} />
+                        </div>
+                        <div>
+                          <label style={{ fontSize: '0.72rem', color: 'var(--color-muted)', display: 'block', marginBottom: '0.2rem', fontWeight: 600 }}>Hours/day *</label>
+                          <input type="number" value={customH} onChange={e => setCustomH(e.target.value)} placeholder="e.g. 8"
+                            style={{ ...inputStyle, fontSize: '0.85rem' }} />
+                        </div>
+                        <div>
+                          <label style={{ fontSize: '0.72rem', color: 'var(--color-muted)', display: 'block', marginBottom: '0.2rem', fontWeight: 600 }}>Surge ×</label>
+                          <input type="number" value={customSurge} onChange={e => setCustomSurge(e.target.value)} placeholder="1.2" step="0.1" min="1" max="5"
+                            style={{ ...inputStyle, fontSize: '0.85rem' }} />
+                        </div>
+                      </div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--color-muted)', lineHeight: 1.5 }}>
+                        Surge multiplier: motors and fridges draw 2–3× watts on startup. Use 1.0 for resistive loads (bulbs, kettles), 2.5 for fridges/pumps, 3.0 for AC.
+                      </div>
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button onClick={addCustom}
+                          style={{ flex: 1, background: 'var(--color-sun)', color: '#fff', border: 'none', padding: '0.55rem', borderRadius: 7, fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}>
+                          Add Appliance
+                        </button>
+                        <button onClick={() => setShowAddForm(false)}
+                          style={{ background: 'var(--color-paper)', color: 'var(--color-muted)', border: '1px solid var(--color-rule)', padding: '0.55rem 0.9rem', borderRadius: 7, fontSize: '0.85rem', cursor: 'pointer' }}>
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <button onClick={() => setStep(2)} style={{ ...btnPrimary, marginTop:'1.4rem' }}>
+              <button onClick={() => setStep(2)} style={{ ...btnPrimary, marginTop: '1.4rem' }}>
                 Continue to Battery Settings <ChevronRight size={16} strokeWidth={2.5} />
               </button>
             </div>
           </div>
 
-          {/* Step 2 */}
+          {/* STEP 2 */}
           {step >= 2 && (
-            <div style={{ background:'#fff', border:'1.5px solid var(--color-rule)', borderRadius:'14px', overflow:'hidden', marginBottom:'1.5rem', animation:'fadeUp 0.35s ease' }}>
-              <div style={{ background:'var(--color-sky)', padding:'1rem 1.5rem' }}>
-                <h2 style={{ fontFamily:'var(--font-display)', fontSize:'1rem', fontWeight:700, color:'#fff', margin:0, display:'flex', alignItems:'center', gap:'0.5rem' }}>
-                  <Battery size={16} strokeWidth={2.5} /> Step 2 — Battery and Backup
+            <div style={{ background: '#fff', border: '1.5px solid var(--color-rule)', borderRadius: '14px', overflow: 'hidden', marginBottom: '1.5rem', animation: 'fadeUp 0.35s ease' }}>
+              <div style={{ background: 'var(--color-sky)', padding: '1rem 1.5rem' }}>
+                <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1rem', fontWeight: 700, color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Battery size={16} strokeWidth={2.5} /> Step 2 — Battery & Backup
                 </h2>
               </div>
-              <div style={{ padding:'1.4rem 1.5rem' }}>
+              <div style={{ padding: '1.4rem 1.5rem' }}>
 
-                <label style={{ display:'block', fontWeight:600, fontSize:'0.84rem', color:'var(--color-ink)', marginBottom:'0.7rem' }}>Battery type</label>
-                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'0.7rem', marginBottom:'1.3rem' }}>
+                <label style={{ display: 'block', fontWeight: 600, fontSize: '0.84rem', color: 'var(--color-ink)', marginBottom: '0.7rem' }}>Battery type</label>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.7rem', marginBottom: '1.3rem' }}>
                   {[
-                    { val:'lithium', label:'Lithium LiFePO4', sub:'Best life, zero maintenance', pros:'8 to 15 yr life, 90% usable' },
-                    { val:'lead',    label:'Lead-Acid',        sub:'Lower upfront cost',          pros:'2 to 5 yr life, 50% usable' },
+                    { val: 'lithium', label: 'Lithium LiFePO4', sub: 'Best life, zero maintenance', pros: '8–15 yr life · 90% usable' },
+                    { val: 'lead',    label: 'Lead-Acid AGM',    sub: 'Lower upfront cost',          pros: '2–5 yr life · 50% usable' },
                   ].map(b => (
-                    <label key={b.val} style={{ border:`2px solid ${battType===b.val ? 'var(--color-sun)' : 'var(--color-rule)'}`, borderRadius:'9px', padding:'0.9rem', cursor:'pointer', background: battType===b.val ? '#fff8f0' : '#fff', display:'flex', flexDirection:'column', gap:'0.3rem', transition:'all 0.2s' }}>
-                      <div style={{ display:'flex', alignItems:'center', gap:'0.4rem' }}>
-                        <input type="radio" name="batt" value={b.val} checked={battType===b.val} onChange={() => setBattType(b.val)} style={{ accentColor:'var(--color-sun)' }} />
-                        <span style={{ fontWeight:700, fontSize:'0.88rem', color:'var(--color-ink)' }}>{b.label}</span>
+                    <label key={b.val} style={{ border: `2px solid ${battType === b.val ? 'var(--color-sun)' : 'var(--color-rule)'}`, borderRadius: '9px', padding: '0.9rem', cursor: 'pointer', background: battType === b.val ? '#fff8f0' : '#fff', display: 'flex', flexDirection: 'column', gap: '0.3rem', transition: 'all 0.2s' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                        <input type="radio" name="batt" value={b.val} checked={battType === b.val} onChange={() => setBattType(b.val)} style={{ accentColor: 'var(--color-sun)' }} />
+                        <span style={{ fontWeight: 700, fontSize: '0.88rem', color: 'var(--color-ink)' }}>{b.label}</span>
                       </div>
-                      <span style={{ fontSize:'0.74rem', color:'var(--color-muted)', paddingLeft:'1.2rem' }}>{b.sub}</span>
-                      <span style={{ fontSize:'0.72rem', color: battType===b.val ? 'var(--color-sun)' : 'var(--color-muted)', paddingLeft:'1.2rem', fontWeight:600 }}>{b.pros}</span>
+                      <span style={{ fontSize: '0.74rem', color: 'var(--color-muted)', paddingLeft: '1.2rem' }}>{b.sub}</span>
+                      <span style={{ fontSize: '0.72rem', color: battType === b.val ? 'var(--color-sun)' : 'var(--color-muted)', paddingLeft: '1.2rem', fontWeight: 600 }}>{b.pros}</span>
                     </label>
                   ))}
                 </div>
 
-                <label style={{ display:'block', fontWeight:600, fontSize:'0.84rem', color:'var(--color-ink)', marginBottom:'0.55rem' }}>
-                  Days of battery backup: <span style={{ color:'var(--color-sun)', fontWeight:800 }}>{battDays} day{battDays>1?'s':''}</span>
+                <label style={{ display: 'block', fontWeight: 600, fontSize: '0.84rem', color: 'var(--color-ink)', marginBottom: '0.55rem' }}>
+                  Days of battery backup: <span style={{ color: 'var(--color-sun)', fontWeight: 800 }}>{battDays} day{battDays > 1 ? 's' : ''}</span>
                 </label>
-                <input type="range" min="1" max="3" step="1" value={battDays} onChange={e=>setBattDays(Number(e.target.value))} style={{ width:'100%', accentColor:'var(--color-sun)', cursor:'pointer' }} />
-                <div style={{ display:'flex', justifyContent:'space-between', fontSize:'0.7rem', color:'var(--color-muted)', marginTop:'0.2rem', marginBottom:'1.4rem' }}>
-                  <span>1 day (standard)</span><span>2 days</span><span>3 days (off-grid)</span>
+                <input type="range" min="1" max="3" step="1" value={battDays} onChange={e => setBattDays(Number(e.target.value))} style={{ width: '100%', accentColor: 'var(--color-sun)', cursor: 'pointer' }} />
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', color: 'var(--color-muted)', marginTop: '0.2rem', marginBottom: '0.5rem' }}>
+                  <span>1 day (grid-tied)</span><span>2 days</span><span>3 days (full off-grid)</span>
                 </div>
 
-                <div style={{ display:'flex', gap:'0.7rem', flexWrap:'wrap' }}>
-                  <button onClick={goToResults} style={{ ...btnPrimary, flex:1 }}>
+                {/* Battery summary pill */}
+                <div style={{ background: 'var(--color-paper-2)', border: '1px solid var(--color-rule)', borderRadius: 8, padding: '0.65rem 0.9rem', marginBottom: '1.3rem', fontSize: '0.8rem', color: 'var(--color-ink-2)', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.4rem' }}>
+                  <span>Recommended: <strong style={{ color: 'var(--color-ink)' }}>{R.battLabel}</strong></span>
+                  <span style={{ color: 'var(--color-sky)', fontWeight: 600 }}>{R.battSpec}</span>
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.7rem', flexWrap: 'wrap' }}>
+                  <button onClick={goToResults} style={{ ...btnPrimary, flex: 1 }}>
                     <Sun size={16} strokeWidth={2.5} /> Get My Solar Estimate
                   </button>
                   <button onClick={() => setStep(1)} style={btnSecondary}>
@@ -367,175 +681,186 @@ export default function SolarCalculator() {
           )}
         </div>
 
-        {/* RIGHT: Results */}
-        <div ref={resultsRef} style={{ position:'sticky', top:'80px' }}>
+        {/* ── RIGHT COLUMN — Results ────────────────────────────────────────── */}
+        <div ref={resultsRef} style={{ position: 'sticky', top: '80px' }}>
           {step < 3 ? (
-            <div style={{ background:'var(--color-paper-2)', border:'2px dashed var(--color-rule)', borderRadius:'14px', padding:'3rem 2rem', textAlign:'center' }}>
-              <div style={{ width:56, height:56, borderRadius:'50%', background:'var(--color-paper)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 1rem' }}>
+
+            // Live preview panel (visible even before step 3)
+            <div style={{ background: 'var(--color-paper-2)', border: '2px dashed var(--color-rule)', borderRadius: '14px', padding: '2.5rem 2rem', textAlign: 'center' }}>
+              <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'var(--color-paper)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem' }}>
                 <Sun size={26} strokeWidth={2} color="var(--color-sun)" />
               </div>
-              <h3 style={{ fontFamily:'var(--font-display)', fontSize:'1.1rem', fontWeight:700, color:'var(--color-ink)', marginBottom:'0.5rem' }}>Your estimate will appear here</h3>
-              <p style={{ fontSize:'0.86rem', color:'var(--color-muted)', lineHeight:1.65 }}>Complete steps 1 and 2, then click Get My Solar Estimate.</p>
-              {activeCount > 0 && (
-                <div style={{ marginTop:'1.5rem', background:'#fff', borderRadius:10, padding:'1rem', textAlign:'left' }}>
-                  <div style={{ fontSize:'0.75rem', fontWeight:700, textTransform:'uppercase', color:'var(--color-muted)', letterSpacing:'1px', marginBottom:'0.5rem' }}>Current selection</div>
-                  <div style={{ fontFamily:'var(--font-display)', fontSize:'1.5rem', fontWeight:800, color:'var(--color-sun)' }}>{(R.dailyWh/1000).toFixed(2)} kWh/day</div>
-                  <div style={{ fontSize:'0.78rem', color:'var(--color-muted)', marginTop:'0.2rem' }}>{activeCount} appliances selected, needs ~{R.solarW}W solar</div>
+              <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.1rem', fontWeight: 700, color: 'var(--color-ink)', marginBottom: '0.5rem' }}>Your estimate will appear here</h3>
+              <p style={{ fontSize: '0.86rem', color: 'var(--color-muted)', lineHeight: 1.65, marginBottom: '1.5rem' }}>Select your appliances, edit the wattage to match your devices, then click Get My Solar Estimate.</p>
+
+              {R.activeCount > 0 && (
+                <div style={{ background: '#fff', borderRadius: 12, padding: '1.2rem', textAlign: 'left', border: '1px solid var(--color-rule)' }}>
+                  <div style={{ fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--color-muted)', marginBottom: '0.6rem' }}>Live preview</div>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: '2rem', fontWeight: 800, color: 'var(--color-sun)', lineHeight: 1 }}>{(R.dailyWh / 1000).toFixed(2)} kWh/day</div>
+                  <div style={{ fontSize: '0.78rem', color: 'var(--color-muted)', marginTop: '0.3rem', marginBottom: '0.8rem' }}>{R.activeCount} appliances · needs ~{R.solarW}W solar</div>
+
+                  {/* Mini top consumers */}
+                  {R.topConsumers.length > 0 && (
+                    <div>
+                      <div style={{ fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.7px', color: 'var(--color-muted)', marginBottom: '0.4rem' }}>Top consumers</div>
+                      {R.topConsumers.map((a, i) => (
+                        <div key={a.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', padding: '0.2rem 0', borderBottom: i < R.topConsumers.length - 1 ? '1px solid var(--color-rule)' : 'none' }}>
+                          <span style={{ color: 'var(--color-ink-2)' }}>{a.name}</span>
+                          <span style={{ fontWeight: 600, color: 'var(--color-ink)' }}>{(a.watts * a.hours / 1000).toFixed(2)} kWh</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
+
           ) : (
+
+            // Full results
             <div style={{ animation: resultsVisible ? 'fadeUp 0.4s ease' : 'none' }}>
 
               {/* Energy profile */}
-              <div style={{ background:'var(--color-ink)', borderRadius:'14px', padding:'1.6rem', marginBottom:'1.2rem' }}>
-                <div style={{ fontSize:'0.68rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'1.5px', color:'rgba(255,255,255,0.4)', marginBottom:'0.8rem' }}>Your Daily Energy Profile</div>
-                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'0.8rem' }}>
+              <div style={{ background: 'var(--color-ink)', borderRadius: '14px', padding: '1.6rem', marginBottom: '1.2rem' }}>
+                <div style={{ fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1.5px', color: 'rgba(255,255,255,0.4)', marginBottom: '0.8rem' }}>Your Daily Energy Profile</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
                   {[
-                    { label:'Daily usage',         val:`${(R.dailyWh/1000).toFixed(2)} kWh` },
-                    { label:'With system losses',  val:`${(R.dailyWhAdj/1000).toFixed(2)} kWh` },
-                    { label:'Solar capacity',      val:`${R.solarW}W` },
-                    { label:`${county.name} sun`,  val:`${sunHours} hrs/day` },
+                    { label: 'Daily usage',        val: `${(R.dailyWh / 1000).toFixed(2)} kWh` },
+                    { label: 'With system losses', val: `${(R.dailyWhAdj / 1000).toFixed(2)} kWh` },
+                    { label: 'Solar capacity',     val: `${R.solarW}W` },
+                    { label: `${county.name} sun`, val: `${sunHours} hrs/day` },
                   ].map(item => (
-                    <div key={item.label} style={{ background:'rgba(255,255,255,0.07)', borderRadius:8, padding:'0.8rem' }}>
-                      <div style={{ fontSize:'0.67rem', color:'rgba(255,255,255,0.4)', textTransform:'uppercase', letterSpacing:'0.7px', marginBottom:'0.25rem' }}>{item.label}</div>
-                      <div style={{ fontSize:'1.05rem', fontWeight:700, color:'var(--color-sun)', fontFamily:'var(--font-display)' }}>{item.val}</div>
+                    <div key={item.label} style={{ background: 'rgba(255,255,255,0.07)', borderRadius: 8, padding: '0.8rem' }}>
+                      <div style={{ fontSize: '0.67rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.7px', marginBottom: '0.25rem' }}>{item.label}</div>
+                      <div style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--color-sun)', fontFamily: 'var(--font-display)' }}>{item.val}</div>
                     </div>
                   ))}
                 </div>
                 {R.peakSurge > 500 && (
-                  <div style={{ marginTop:'0.8rem', background:'rgba(212,114,26,0.15)', borderRadius:7, padding:'0.6rem 0.9rem', fontSize:'0.76rem', color:'rgba(255,255,255,0.7)', display:'flex', alignItems:'center', gap:'0.5rem' }}>
+                  <div style={{ marginTop: '0.8rem', background: 'rgba(212,114,26,0.15)', borderRadius: 7, padding: '0.6rem 0.9rem', fontSize: '0.76rem', color: 'rgba(255,255,255,0.7)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <AlertTriangle size={14} strokeWidth={2.5} color="var(--color-sun)" />
-                    Peak surge: <strong style={{ color:'var(--color-sun)' }}>{R.peakSurge}W</strong> — inverter sized to handle motor startup loads
+                    Peak surge: <strong style={{ color: 'var(--color-sun)' }}>{R.peakSurge}W</strong> — inverter sized to handle motor startup loads
                   </div>
                 )}
               </div>
 
               {/* System size callout */}
-              <div style={{ background:'var(--color-sun)', borderRadius:'12px', padding:'1.2rem 1.5rem', marginBottom:'1.2rem', display:'flex', alignItems:'center', justifyContent:'space-between', gap:'1rem', flexWrap:'wrap' }}>
+              <div style={{ background: 'var(--color-sun)', borderRadius: '12px', padding: '1.2rem 1.5rem', marginBottom: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
                 <div>
-                  <div style={{ fontSize:'0.68rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'1.5px', color:'rgba(255,255,255,0.7)', marginBottom:'0.2rem' }}>Recommended System Size</div>
-                  <div style={{ fontFamily:'var(--font-display)', fontSize:'2rem', fontWeight:800, color:'#fff', lineHeight:1 }}>{R.totalKwp.toFixed(1)} kWp</div>
+                  <div style={{ fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1.5px', color: 'rgba(255,255,255,0.7)', marginBottom: '0.2rem' }}>Recommended System Size</div>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: '2rem', fontWeight: 800, color: '#fff', lineHeight: 1 }}>{R.totalKwp.toFixed(1)} kWp</div>
                 </div>
-                <div style={{ textAlign:'right' }}>
-                  <div style={{ fontSize:'0.68rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'1.5px', color:'rgba(255,255,255,0.7)', marginBottom:'0.2rem' }}>Total Estimate</div>
-                  <div style={{ fontFamily:'var(--font-display)', fontSize:'1.9rem', fontWeight:800, color:'#fff', lineHeight:1 }}>{fmt(R.total300)}</div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1.5px', color: 'rgba(255,255,255,0.7)', marginBottom: '0.2rem' }}>Total Estimate</div>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.9rem', fontWeight: 800, color: '#fff', lineHeight: 1 }}>{fmt(R.total300)}</div>
                 </div>
               </div>
 
               {/* Component cards */}
-              <div style={{ marginBottom:'1.2rem' }}>
-                <div style={{ fontSize:'0.75rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'1px', color:'var(--color-muted)', marginBottom:'0.7rem' }}>System Components</div>
-                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'0.6rem' }}>
-                  <ComponentCard Icon={Sun}     title="Solar Panels" spec={`${R.panels300} x 300W`}    price={fmt(R.panelCost300)} note={`${R.totalKwp.toFixed(1)} kWp total, Mono PERC`} color="var(--color-sun)" />
-                  <ComponentCard Icon={Battery} title="Batteries"    spec={R.battLabel}                 price={fmt(R.battTotalCost)} note={R.battSpec} color="var(--color-sky)" />
-                  <ComponentCard Icon={Zap}     title="Inverter"     spec={`${R.inverterKw}kW Hybrid`}  price={fmt(R.inverterCost)} note={R.inverterLabel} color="#2d6a2d" />
-                  <ComponentCard Icon={Wrench}  title="Mounting + Wiring" spec="Full installation"     price={fmt(R.extras)} note="Labour, cables, breakers" color="#7c3aed" />
+              <div style={{ marginBottom: '1.2rem' }}>
+                <div style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--color-muted)', marginBottom: '0.7rem' }}>System Components</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem' }}>
+                  <ComponentCard Icon={Sun}     title="Solar Panels" spec={`${R.panels300} × 300W`}   price={fmt(R.panelCost300)} note={`${R.totalKwp.toFixed(1)} kWp · Mono PERC`}    color="var(--color-sun)" />
+                  <ComponentCard Icon={Battery} title="Batteries"    spec={R.battLabel}                price={fmt(R.battTotalCost)} note={R.battSpec}                                    color="var(--color-sky)" />
+                  <ComponentCard Icon={Zap}     title="Inverter"     spec={`${R.inverterKw}kW Hybrid`} price={fmt(R.inverterCost)} note={R.inverterLabel}                               color="#2d6a2d" />
+                  <ComponentCard Icon={Wrench}  title="Installation" spec="Full install"               price={fmt(R.extras)}       note="Mounting, cables, breakers, labour"            color="#7c3aed" />
                 </div>
               </div>
 
               {/* Cost breakdown */}
-              <div style={{ background:'#fff', border:'1.5px solid var(--color-rule)', borderRadius:'12px', padding:'1.3rem', marginBottom:'1.2rem' }}>
-                <div style={{ fontSize:'0.75rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'1px', color:'var(--color-muted)', marginBottom:'0.7rem' }}>Cost Breakdown</div>
-                <ResultRow label="Solar panels (300W option)" value={fmt(R.panelCost300)} />
-                <ResultRow label="Alternatively (400W panels)" value={fmt(R.panelCost400)} sub="Fewer panels, same output" />
-                <ResultRow label="Inverter" value={fmt(R.inverterCost)} />
-                <ResultRow label="Batteries" value={fmt(R.battTotalCost)} sub={R.battSpec} />
-                <ResultRow label="Mounting, wiring and installation" value={fmt(R.extras)} />
-                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', paddingTop:'0.9rem', marginTop:'0.4rem', borderTop:'2px solid var(--color-ink)' }}>
-                  <span style={{ fontWeight:700, fontSize:'0.95rem', color:'var(--color-ink)' }}>Total estimate (300W panels)</span>
-                  <span style={{ fontFamily:'var(--font-display)', fontSize:'1.4rem', fontWeight:800, color:'var(--color-sun)' }}>{fmt(R.total300)}</span>
+              <div style={{ background: '#fff', border: '1.5px solid var(--color-rule)', borderRadius: '12px', padding: '1.3rem', marginBottom: '1.2rem' }}>
+                <div style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--color-muted)', marginBottom: '0.7rem' }}>Cost Breakdown</div>
+                <ResultRow label={`${R.panels300} × 300W panels`}        value={fmt(R.panelCost300)} />
+                <ResultRow label={`Or: ${R.panels400} × 400W panels`}    value={fmt(R.panelCost400)} sub="Fewer panels, same output — better value per W" />
+                <ResultRow label={R.inverterLabel}                        value={fmt(R.inverterCost)} />
+                <ResultRow label={R.battLabel}                            value={fmt(R.battTotalCost)} sub={R.battSpec} />
+                <ResultRow label="Mounting, wiring & installation"        value={fmt(R.extras)} />
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.9rem', marginTop: '0.4rem', borderTop: '2px solid var(--color-ink)' }}>
+                  <span style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--color-ink)' }}>Total (300W panels)</span>
+                  <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.4rem', fontWeight: 800, color: 'var(--color-sun)' }}>{fmt(R.total300)}</span>
                 </div>
-                <p style={{ fontSize:'0.7rem', color:'var(--color-muted)', marginTop:'0.5rem', fontStyle:'italic', lineHeight:1.5 }}>
-                  Estimates based on average Kenyan market prices (2026 to 2026). Actual costs vary by brand, location, and installer. Always get at least 3 quotes.
+                <p style={{ fontSize: '0.7rem', color: 'var(--color-muted)', marginTop: '0.5rem', fontStyle: 'italic', lineHeight: 1.5 }}>
+                  Nairobi market prices, March 2026. Get at least 3 quotes before committing.
                 </p>
               </div>
 
               {/* ROI */}
               {R.monthlyKplc > 0 && (
-                <div style={{ background:'linear-gradient(135deg,var(--color-sky),#0e3f57)', borderRadius:'12px', padding:'1.3rem', marginBottom:'1.2rem' }}>
-                  <div style={{ fontSize:'0.75rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'1px', color:'rgba(255,255,255,0.5)', marginBottom:'0.8rem' }}>Return on Investment</div>
-                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'0.7rem' }}>
+                <div style={{ background: 'linear-gradient(135deg,var(--color-sky),#0e3f57)', borderRadius: '12px', padding: '1.3rem', marginBottom: '1.2rem' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', color: 'rgba(255,255,255,0.5)', marginBottom: '0.8rem' }}>Return on Investment</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.7rem' }}>
                     {[
-                      { label:'Est. monthly KPLC bill', val: fmt(R.monthlyKplc) },
-                      { label:'Monthly savings (80%)',  val: fmt(R.monthlySaving) },
-                      { label:'Payback period',         val: R.paybackYrs ? `~${R.paybackYrs} yrs` : 'N/A' },
-                      { label:'10-year net savings',    val: R.tenYrSaving > 0 ? fmt(R.tenYrSaving) : 'N/A' },
+                      { label: 'Est. monthly KPLC bill', val: fmt(R.monthlyKplc) },
+                      { label: 'Monthly savings (80%)',  val: fmt(R.monthlySaving) },
+                      { label: 'Payback period',         val: R.paybackYrs ? `~${R.paybackYrs} yrs` : 'N/A' },
+                      { label: '10-year net savings',    val: R.tenYrSaving > 0 ? fmt(R.tenYrSaving) : 'N/A' },
                     ].map(item => (
-                      <div key={item.label} style={{ background:'rgba(255,255,255,0.1)', borderRadius:7, padding:'0.8rem' }}>
-                        <div style={{ fontSize:'0.67rem', color:'rgba(255,255,255,0.5)', marginBottom:'0.3rem' }}>{item.label}</div>
-                        <div style={{ fontWeight:700, fontSize:'0.95rem', color:'#fff' }}>{item.val}</div>
+                      <div key={item.label} style={{ background: 'rgba(255,255,255,0.1)', borderRadius: 7, padding: '0.8rem' }}>
+                        <div style={{ fontSize: '0.67rem', color: 'rgba(255,255,255,0.5)', marginBottom: '0.3rem' }}>{item.label}</div>
+                        <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#fff' }}>{item.val}</div>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
 
-              {/* Data sources */}
-              <div style={{ background:'var(--color-paper-2)', border:'1px solid var(--color-rule)', borderRadius:'10px', padding:'1rem 1.2rem', marginBottom:'1.2rem', fontSize:'0.73rem', color:'var(--color-muted)', lineHeight:1.65 }}>
-                <strong style={{ color:'var(--color-ink-2)', display:'block', marginBottom:'0.3rem' }}>Data Sources</strong>
-                Kenya Power tariff schedule · Kenya Meteorological Department irradiance data · Nairobi market equipment survey (2026) · Solar industry average loss factors (IEC 61724)
-              </div>
-
               {/* Download + Reset */}
-              <div style={{ display:'flex', gap:'0.7rem', flexWrap:'wrap', marginBottom:'1.2rem' }}>
-                <button onClick={downloadResults} style={{ flex:1, background:'var(--color-ink)', color:'#fff', border:'none', padding:'0.75rem 1.2rem', borderRadius:'8px', fontWeight:700, fontSize:'0.88rem', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:'0.5rem' }}>
+              <div style={{ display: 'flex', gap: '0.7rem', flexWrap: 'wrap', marginBottom: '1.2rem' }}>
+                <button onClick={downloadResults} style={{ flex: 1, background: 'var(--color-ink)', color: '#fff', border: 'none', padding: '0.75rem 1.2rem', borderRadius: '8px', fontWeight: 700, fontSize: '0.88rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
                   <Download size={15} strokeWidth={2.5} /> Download Estimate
                 </button>
-                <button onClick={() => { setStep(1); setResultsVisible(false) }} style={btnSecondary}>
+                <button onClick={() => { setStep(1); setResultsVisible(false); setAppliances(DEFAULT_APPLIANCES) }} style={btnSecondary}>
                   <RotateCcw size={14} strokeWidth={2.5} /> Reset
                 </button>
               </div>
 
               {/* Lead gen */}
-              <div style={{ background:'linear-gradient(135deg,#1a2e1a,#2c5f2e)', borderRadius:'14px', padding:'1.5rem', marginBottom:'1.2rem' }}>
-                <h3 style={{ fontFamily:'var(--font-display)', fontSize:'1.1rem', fontWeight:700, color:'#fff', marginBottom:'0.4rem' }}>Want installation quotes near you?</h3>
-                <p style={{ fontSize:'0.83rem', color:'rgba(255,255,255,0.7)', marginBottom:'1.2rem', lineHeight:1.6 }}>Leave your details and verified local installers will contact you with quotes based on this estimate.</p>
+              <div style={{ background: 'linear-gradient(135deg,#1a2e1a,#2c5f2e)', borderRadius: '14px', padding: '1.5rem', marginBottom: '1.2rem' }}>
+                <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.1rem', fontWeight: 700, color: '#fff', marginBottom: '0.4rem' }}>Want installer quotes near you?</h3>
+                <p style={{ fontSize: '0.83rem', color: 'rgba(255,255,255,0.7)', marginBottom: '1.2rem', lineHeight: 1.6 }}>Leave your details and verified local installers will contact you with quotes based on this estimate.</p>
                 {leadSent ? (
-                  <div style={{ background:'rgba(255,255,255,0.12)', borderRadius:9, padding:'1rem', textAlign:'center', color:'#fff', fontSize:'0.9rem', fontWeight:600, display:'flex', alignItems:'center', justifyContent:'center', gap:'0.5rem' }}>
+                  <div style={{ background: 'rgba(255,255,255,0.12)', borderRadius: 9, padding: '1rem', textAlign: 'center', color: '#fff', fontSize: '0.9rem', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
                     <Check size={18} strokeWidth={2.5} color="#4ade80" /> Received. Installers will contact you within 24 hours.
                   </div>
                 ) : (
-                  <div style={{ display:'flex', flexDirection:'column', gap:'0.55rem' }}>
-                    <input type="text" value={leadName}   onChange={e=>setLeadName(e.target.value)}   placeholder="Your name" style={{ ...inputStyle, background:'rgba(255,255,255,0.12)', border:'1px solid rgba(255,255,255,0.2)', color:'#fff' }} />
-                    <input type="tel"  value={leadPhone}  onChange={e=>setLeadPhone(e.target.value)}  placeholder="Phone or WhatsApp number" style={{ ...inputStyle, background:'rgba(255,255,255,0.12)', border:'1px solid rgba(255,255,255,0.2)', color:'#fff' }} />
-                    <input type="text" value={leadCounty} onChange={e=>setLeadCounty(e.target.value)} placeholder="Your county or town" style={{ ...inputStyle, background:'rgba(255,255,255,0.12)', border:'1px solid rgba(255,255,255,0.2)', color:'#fff' }} />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.55rem' }}>
+                    <input type="text"  value={leadName}   onChange={e => setLeadName(e.target.value)}   placeholder="Your name"                 style={{ ...inputStyle, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff' }} />
+                    <input type="tel"   value={leadPhone}  onChange={e => setLeadPhone(e.target.value)}  placeholder="Phone or WhatsApp number"  style={{ ...inputStyle, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff' }} />
+                    <input type="text"  value={leadCounty} onChange={e => setLeadCounty(e.target.value)} placeholder="Your county or town"        style={{ ...inputStyle, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff' }} />
                     <button
                       onClick={async () => {
                         if (!leadName || !leadPhone) return
                         setLeadLoading(true)
                         try {
                           await fetch('https://formspree.io/f/xdawgwwb', {
-                            method:'POST',
-                            headers:{ 'Content-Type':'application/json', 'Accept':'application/json' },
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                             body: JSON.stringify({
-                              name:    leadName,
-                              phone:   leadPhone,
-                              county:  leadCounty,
-                              system:  `${R.totalKwp.toFixed(1)}kWp — ${R.inverterLabel} — ${R.battLabel}`,
-                              cost:    `KSh ${Math.round(R.total300).toLocaleString('en-KE')}`,
-                              _subject:`New installer lead: ${leadName} (${leadCounty || 'county not given'})`,
-                            })
+                              name: leadName, phone: leadPhone, county: leadCounty,
+                              system: `${R.totalKwp.toFixed(1)}kWp — ${R.inverterLabel} — ${R.battLabel}`,
+                              cost:   `KSh ${Math.round(R.total300).toLocaleString('en-KE')}`,
+                              _subject: `New installer lead: ${leadName} (${leadCounty || 'county not given'})`,
+                            }),
                           })
-                        } catch(e) { /* show success anyway */ }
+                        } catch (e) { /* show success anyway */ }
                         setLeadLoading(false)
                         setLeadSent(true)
                       }}
                       disabled={leadLoading}
-                      style={{ background:'var(--color-sun)', color:'#fff', border:'none', padding:'0.8rem', borderRadius:'8px', fontWeight:700, fontSize:'0.9rem', cursor: leadLoading ? 'not-allowed' : 'pointer', marginTop:'0.2rem', opacity: leadLoading ? 0.7 : 1, display:'flex', alignItems:'center', justifyContent:'center', gap:'0.5rem' }}>
+                      style={{ background: 'var(--color-sun)', color: '#fff', border: 'none', padding: '0.8rem', borderRadius: '8px', fontWeight: 700, fontSize: '0.9rem', cursor: leadLoading ? 'not-allowed' : 'pointer', opacity: leadLoading ? 0.7 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
                       {leadLoading ? 'Sending...' : <><ChevronRight size={16} strokeWidth={2.5} /> Get Free Installer Quotes</>}
                     </button>
-                    <p style={{ fontSize:'0.68rem', color:'rgba(255,255,255,0.45)', textAlign:'center' }}>Your details are shared only with vetted local installers.</p>
+                    <p style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.45)', textAlign: 'center' }}>Details shared only with vetted local installers.</p>
                   </div>
                 )}
               </div>
 
               {/* Related links */}
-              <div style={{ display:'flex', gap:'0.6rem', flexWrap:'wrap' }}>
-                <Link to="/posts/solar-3-bedroom-house" style={{ flex:1, background:'var(--color-paper-2)', border:'1px solid var(--color-rule)', color:'var(--color-ink)', padding:'0.65rem 1rem', borderRadius:'8px', fontWeight:600, fontSize:'0.83rem', textAlign:'center', display:'flex', alignItems:'center', justifyContent:'center', gap:'0.4rem' }}>
+              <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+                <Link to="/posts/solar-3-bedroom-house" style={{ flex: 1, background: 'var(--color-paper-2)', border: '1px solid var(--color-rule)', color: 'var(--color-ink)', padding: '0.65rem 1rem', borderRadius: '8px', fontWeight: 600, fontSize: '0.83rem', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}>
                   <BookOpen size={14} strokeWidth={2.5} /> Solar Guide
                 </Link>
-                <Link to="/posts/lithium-vs-lead-acid" style={{ flex:1, background:'var(--color-paper-2)', border:'1px solid var(--color-rule)', color:'var(--color-ink)', padding:'0.65rem 1rem', borderRadius:'8px', fontWeight:600, fontSize:'0.83rem', textAlign:'center', display:'flex', alignItems:'center', justifyContent:'center', gap:'0.4rem' }}>
+                <Link to="/posts/lithium-vs-lead-acid" style={{ flex: 1, background: 'var(--color-paper-2)', border: '1px solid var(--color-rule)', color: 'var(--color-ink)', padding: '0.65rem 1rem', borderRadius: '8px', fontWeight: 600, fontSize: '0.83rem', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}>
                   <Battery size={14} strokeWidth={2.5} /> Battery Guide
                 </Link>
               </div>
@@ -548,7 +873,8 @@ export default function SolarCalculator() {
       <style>{`
         @keyframes fadeUp { from { opacity:0; transform:translateY(16px) } to { opacity:1; transform:translateY(0) } }
         @media (max-width: 800px) { .calc-grid { grid-template-columns: 1fr !important; } }
-        input[placeholder]::placeholder { color: rgba(255,255,255,0.35); }
+        input[type=number]::-webkit-inner-spin-button { opacity: 0.5; }
+        input::placeholder { color: rgba(255,255,255,0.35); }
       `}</style>
     </div>
   )
