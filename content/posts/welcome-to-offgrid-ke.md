@@ -1,12 +1,13 @@
 ---
-title: "Welcome to OFFGRID.KE"
-slug: "welcome-to-offgrid-ke"
-date: "2026-03-13"
-tag: "Solar"
-tagColor: "solar"
-readTime: "2 min"
-image: ""
-excerpt: "Kenya's free practical guide to off-grid living — solar, water, food and security for homeowners, farmers and small businesses."
+title: Welcome to OFFGRID.KE
+slug: welcome-to-offgrid-ke
+date: 2026-03-13
+tag: Solar
+tagColor: solar
+readTime: 2 min
+image: /images/welcome-to-offgrid.jpg
+excerpt: Kenya's free practical guide to off-grid living — solar, water, food
+  and security for homeowners, farmers and small businesses.
 ---
 
 ## Kenya's Off-Grid Resource is Live
