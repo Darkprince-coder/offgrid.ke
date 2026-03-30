@@ -14,7 +14,7 @@ const CATEGORIES = [
       { to: '/posts/solar-3-bedroom-house', label: 'Solar System Guides',   desc: 'Full setup walkthroughs' },
       { to: '/posts/how-many-solar-panels', label: 'How Many Panels?',      desc: 'Calculate your needs' },
       { to: '/posts/lithium-vs-lead-acid',  label: 'Battery Comparisons',   desc: 'LiFePO4 vs lead-acid' },
-      { to: '/posts/solar-prices-kenya',    label: 'Solar Prices in Kenya', desc: 'Current market rates' },
+      { to: '/posts/solar-panels-price-kenya',    label: 'Solar Prices in Kenya', desc: 'Current market rates' },
     ],
   },
   {
