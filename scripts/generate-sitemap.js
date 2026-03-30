@@ -20,6 +20,7 @@ const staticPages = [
 
 // Hardcoded posts slugs (keep in sync with posts.js)
 const hardcodedSlugs = [
+  {slug: 'solar-panels-price-kenya',       date: '2026-03-30'},
   { slug: 'how-many-solar-panels',         date: '2026-03-01' },
   { slug: 'solar-3-bedroom-house',          date: '2026-03-05' },
   { slug: 'best-water-tanks-kenya',         date: '2026-03-08' },
