@@ -1,5 +1,5 @@
 [build]
-  command   = "npm ci --include=dev && node scripts/generate-sitemap.js && npm run build"
+  command   = "npm ci --include=dev && node scripts/generate-sitemap.js && npm run build && node scripts/prerender.js"
   publish   = "dist"
 
 [[redirects]]
@@ -10,7 +10,6 @@
 [build.environment]
   NODE_VERSION = "18"
 
-# Cache headers for static assets
 [[headers]]
   for = "/sitemap.xml"
   [headers.values]
