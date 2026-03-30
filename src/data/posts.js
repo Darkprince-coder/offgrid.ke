@@ -25,16 +25,16 @@ const posts = [
     tagColor: 'solar',
     readTime: '11 min',
     image:    '/images/solar-panels-price-kenya.jpg',
-    excerpt:  'Real KSh prices for every panel size and complete system — plus why prices are rising in 2026, which brands are worth it, and how to avoid overpaying installers.',
+    excerpt:  'Real KSh prices for every panel size and complete system, plus why prices are rising in 2026, which brands are worth it, and how to avoid overpaying installers.',
     content: [
 
-      { type: 'p', text: "Solar panel prices in Kenya have been falling for years. That trend is reversing in 2026. China — which supplies most of the world's solar panels — cancelled a 9 percent export rebate on solar modules in April 2026, pushing manufacturing costs higher for every importer including Kenyan dealers. If you have been sitting on the fence about solar, understanding what prices look like right now, and where they are heading, matters." },
+      { type: 'p', text: "Solar panel prices in Kenya have been falling for years. That trend is reversing in 2026. China which supplies most of the world's solar panels cancelled a 9 percent export rebate on solar modules in April 2026, pushing manufacturing costs higher for every importer including Kenyan dealers. If you have been sitting on the fence about solar, understanding what prices look like right now, and where they are heading, matters." },
       { type: 'p', text: "This guide gives you the actual KSh price ranges for individual panels by wattage, complete system costs by home size, and a breakdown of every cost component so no installer can quote you a lump sum without you knowing what is inside it." },
 
-      { type: 'callout', sky: true, title: 'Price warning: 2026 changes', text: "Global solar panel prices are expected to rise 20 to 30 percent in 2026 compared to late 2025. The main driver is China removing its export tax rebate on solar modules from April 2026. Kenya imports nearly all its solar equipment, so local prices will follow. The prices in this guide reflect the Nairobi market as of March 2026 — verify current pricing with at least two dealers before buying." },
+      { type: 'callout', sky: true, title: 'Price warning: 2026 changes', text: "Global solar panel prices are expected to rise 20 to 30 percent in 2026 compared to late 2025. The main driver is China removing its export tax rebate on solar modules from April 2026. Kenya imports nearly all its solar equipment, so local prices will follow. The prices in this guide reflect the Nairobi market as of March 2026 verify current pricing with at least two dealers before buying." },
 
       { type: 'h2', text: 'Solar panel prices in Kenya: per panel by wattage (March 2026)' },
-      { type: 'p', text: "These are street prices from Nairobi wholesalers and dealers for monocrystalline PERC panels — the standard type used in virtually all Kenyan home and business solar installations today. Polycrystalline panels are cheaper but increasingly hard to find, and the efficiency difference makes mono the better buy at current price spreads." },
+      { type: 'p', text: "These are street prices from Nairobi wholesalers and dealers for monocrystalline PERC panels the standard type used in virtually all Kenyan home and business solar installations today. Polycrystalline panels are cheaper but increasingly hard to find, and the efficiency difference makes mono the better buy at current price spreads." },
       { type: 'table',
         headers: ['Panel Wattage', 'Budget or Generic', 'Mid-Range (Risen, DAH, Jinko)', 'Premium (JA Solar, LONGi, Trina)', 'Best For'],
         rows: [
@@ -66,7 +66,7 @@ const posts = [
 
       { type: 'h2', text: 'What is inside that price: cost breakdown per component' },
       { type: 'p', text: "When an installer quotes you a single lump sum, you cannot tell if you are getting a fair deal or being overcharged on one component to subsidise another. Ask for an itemised quote. Here is what each component should cost for a standard 2.4 kWp 3-bedroom system using mid-range equipment." },
-      { type: 'summary', title: 'Typical 2.4 kWp system — component cost breakdown', rows: [
+      { type: 'summary', title: 'Typical 2.4 kWp system component cost breakdown', rows: [
         { label: '8 x 300W monocrystalline panels (mid-range)',  value: 'KSh 104,000 – 144,000' },
         { label: '5kW hybrid inverter (Growatt or Deye)',         value: 'KSh 90,000 – 140,000' },
         { label: 'Batteries — lithium 2 x 100Ah LiFePO4 24V',   value: 'KSh 100,000 – 200,000' },
@@ -86,7 +86,7 @@ const posts = [
       { type: 'p', text: "Silver, which is used in solar cell conductors, has become significantly more expensive. Aluminium for mounting frames and copper for cabling have also risen. These are global commodity movements that affect every solar panel regardless of brand." },
       { type: 'h3', text: 'Kenyan demand outpacing supply' },
       { type: 'p', text: "Kenya Power tariff increases have driven a surge in solar interest. More buyers competing for the same local inventory means dealers have less incentive to discount. Upcountry dealers especially are seeing stock shortages of popular inverter brands like Growatt and Deye." },
-      { type: 'callout', sky: true, title: 'Practical implication', text: "If you are ready to install solar, March to June 2026 is likely a better time to buy than waiting until the end of the year. The price pressure from China's rebate change is not yet fully priced into most Kenyan dealer stock — but it will be by Q3 2026 when current inventory turns over." },
+      { type: 'callout', sky: true, title: 'Practical implication', text: "If you are ready to install solar, March to June 2026 is likely a better time to buy than waiting until the end of the year. The price pressure from China's rebate change is not yet fully priced into most Kenyan dealer stock but it will be by Q3 2026 when current inventory turns over." },
 
       { type: 'h2', text: 'Which solar panel brands are worth buying in Kenya?' },
       { type: 'table',
@@ -122,17 +122,14 @@ const posts = [
 
       { type: 'callout', title: 'The honest summary on price', text: "A properly installed 3-bedroom solar system in Kenya costs KSh 280,000 to KSh 500,000 with good quality components. Quotes significantly below this range are using either undersized batteries, budget panels, or an inverter that will not handle surge loads. Quotes significantly above this range need to be explained component by component." },
 
-      { type: 'calculatorCTA', title: 'Find out exactly what size system you need', text: 'Enter your appliances into our free Solar Calculator and get a complete system recommendation with current Kenyan prices — before you talk to a single installer.' },
+      { type: 'calculatorCTA', title: 'Find out exactly what size system you need', text: 'Enter your appliances into our free Solar Calculator and get a complete system recommendation with current Kenyan prices before you talk to a single installer.' },
       { type: 'internalLink', label: 'Next step', text: 'Solar for a 3-bedroom house in Kenya: what you need and what it costs', to: '/posts/solar-3-bedroom-house' },
       { type: 'internalLink', label: 'Compare power options', text: 'Grid vs Solar vs Generator: 10-year cost comparison for Kenya', to: '/tools/cost-comparison' },
       { type: 'internalLink', label: 'Battery guide', text: 'Lithium vs Lead-Acid Batteries in Kenya: Which Should You Buy?', to: '/posts/lithium-vs-lead-acid' },
     ],
   },
 
-// ── ALSO: add this entry to your sitemap.xml in /public/sitemap.xml ──────────
-/*
- 
-*/
+
 
   // ── 1. How many solar panels ─────────────────────────
   {
