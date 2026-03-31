@@ -15,7 +15,6 @@ const PostsIndex      = lazy(() => import('./pages/PostsIndex'))
 const Post            = lazy(() => import('./pages/Post'))
 const About           = lazy(() => import('./pages/About'))
 const Contact         = lazy(() => import('./pages/Contact'))
-const Newsletter      = lazy(() => import('./pages/Newsletter'))
 const SolarCalculator = lazy(() => import('./pages/tools/SolarCalculator'))
 const CostComparison  = lazy(() => import('./pages/tools/CostComparison'))
 const WaterTankCalc   = lazy(() => import('./pages/tools/WaterTankCalculator'))
@@ -85,7 +84,6 @@ function AnimatedRoutes() {
             <Route path="/posts/:slug"                 element={<Post />} />
             <Route path="/about"                       element={<About />} />
             <Route path="/contact"                     element={<Contact />} />
-            <Route path="/newsletter"                  element={<Newsletter />} />
             <Route path="/tools/solar-calculator"      element={<SolarCalculator />} />
             <Route path="/tools/cost-comparison"       element={<CostComparison />} />
             <Route path="/tools/water-tank-calculator" element={<WaterTankCalc />} />

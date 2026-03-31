@@ -17,7 +17,6 @@ const staticPages = [
   { url: '/tools/water-tank-calculator',   changefreq: 'monthly', priority: '0.8' },
   { url: '/about',                         changefreq: 'monthly', priority: '0.5' },
   { url: '/contact',                       changefreq: 'monthly', priority: '0.5' },
-  { url: '/newsletter',                    changefreq: 'monthly', priority: '0.4' },
 ]
 
 // Hardcoded posts (keep in sync with posts.js)

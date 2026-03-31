@@ -94,12 +94,7 @@ const STATIC_PAGES = [
     route: '/contact', canonical: '/contact', image: '/og-default.jpg',
     title: 'Contact OFFGRID.KE — Questions & Corrections',
     description: 'Get in touch with the OFFGRID.KE team via WhatsApp or email. We reply to every question about solar, water, and off-grid living in Kenya.',
-  },
-  {
-    route: '/newsletter', canonical: '/newsletter', image: '/og-default.jpg',
-    title: 'OFFGRID.KE Newsletter — Off-Grid Tips for Kenya',
-    description: 'Sign up for the OFFGRID.KE newsletter. Get new guides, local prices, and product reviews straight to your inbox.',
-  },
+  }
 ]
 
 // ── HTML builder ──────────────────────────────────────────────────────────────

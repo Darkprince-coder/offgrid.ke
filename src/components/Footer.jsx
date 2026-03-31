@@ -46,7 +46,7 @@ export default function Footer() {
           <div>
             <h5 style={{ color: 'rgba(255,255,255,0.28)', fontSize: '0.68rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '1rem' }}>About</h5>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-              {[['About Offgrid.ke', '/about'], ['Newsletter', '/newsletter'], ['Contact', '/contact']].map(([label, to]) => (
+              {[['About Offgrid.ke', '/about'],  ['Contact', '/contact']].map(([label, to]) => (
                 <Link key={to} to={to} style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.87rem' }}>{label}</Link>
               ))}
             </div>
