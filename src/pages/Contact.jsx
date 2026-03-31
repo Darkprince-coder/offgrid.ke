@@ -29,8 +29,12 @@ export default function Contact() {
     <div style={{ maxWidth:'800px', margin:'0 auto', padding:'4rem 5% 6rem' }}>
 <SEOHead
   title="Contact OFFGRID.KE — Questions & Corrections"
-  description="Need help with your off-grid setup? Contact OFFGRID.KE for guidance on solar, water, and security solutions tailored for Kenya.."
+  description="Need help with your off-grid setup? Contact OFFGRID.KE for guidance on solar, water, and security solutions tailored for Kenya."
   canonical="/contact"
+  breadcrumbs={[
+    { name: 'Home',    url: '/' },
+    { name: 'Contact', url: '/contact' },
+  ]}
 />
       <div style={{ display:'flex', gap:'0.5rem', fontSize:'0.76rem', marginBottom:'2rem', color:'var(--color-muted)' }}>
         <Link to="/" style={{ color:'var(--color-sky)', fontWeight:600 }}>Home</Link>

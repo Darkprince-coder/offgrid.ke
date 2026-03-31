@@ -4,27 +4,30 @@ import { AnimatePresence, motion } from 'framer-motion'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import ScrollToTop from './components/ScrollToTop'
+import ReadingProgress from './components/ReadingProgress'
 
-// ── Eagerly loaded ────────────────────────────────────────────────────────────
+// ── Eagerly loaded ─────────────────────────────────────────────────────────────
 import Home     from './pages/Home'
 import NotFound from './pages/NotFound'
 
-// ── Lazy loaded — cuts initial bundle ~60% ────────────────────────────────────
+// ── Lazy loaded — cuts initial bundle ~60% ─────────────────────────────────────
 const PostsIndex      = lazy(() => import('./pages/PostsIndex'))
 const Post            = lazy(() => import('./pages/Post'))
 const About           = lazy(() => import('./pages/About'))
 const Contact         = lazy(() => import('./pages/Contact'))
+const Newsletter      = lazy(() => import('./pages/Newsletter'))
 const SolarCalculator = lazy(() => import('./pages/tools/SolarCalculator'))
 const CostComparison  = lazy(() => import('./pages/tools/CostComparison'))
+const WaterTankCalc   = lazy(() => import('./pages/tools/WaterTankCalculator'))
 
-// ── Page transition variants ──────────────────────────────────────────────────
+// ── Page transition variants ───────────────────────────────────────────────────
 const pageVariants = {
   initial:  { opacity: 0, y: 12 },
   animate:  { opacity: 1, y: 0, transition: { duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] } },
   exit:     { opacity: 0, y: -8, transition: { duration: 0.18, ease: 'easeIn' } },
 }
 
-// ── Page skeleton shown during lazy load ──────────────────────────────────────
+// ── Loading skeleton ───────────────────────────────────────────────────────────
 function PageSkeleton() {
   return (
     <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '3rem 5%' }}>
@@ -69,7 +72,7 @@ class ErrorBoundary extends Component {
   }
 }
 
-// ── Animated routes wrapper ───────────────────────────────────────────────────
+// ── Animated routes ────────────────────────────────────────────────────────────
 function AnimatedRoutes() {
   const location = useLocation()
   return (
@@ -77,14 +80,16 @@ function AnimatedRoutes() {
       <motion.div key={location.pathname} variants={pageVariants} initial="initial" animate="animate" exit="exit">
         <Suspense fallback={<PageSkeleton />}>
           <Routes location={location}>
-            <Route path="/"                       element={<Home />} />
-            <Route path="/posts"                  element={<PostsIndex />} />
-            <Route path="/posts/:slug"            element={<Post />} />
-            <Route path="/about"                  element={<About />} />
-            <Route path="/contact"                element={<Contact />} />
-            <Route path="/tools/solar-calculator" element={<SolarCalculator />} />
-            <Route path="/tools/cost-comparison"  element={<CostComparison />} />
-            <Route path="*"                       element={<NotFound />} />
+            <Route path="/"                            element={<Home />} />
+            <Route path="/posts"                       element={<PostsIndex />} />
+            <Route path="/posts/:slug"                 element={<Post />} />
+            <Route path="/about"                       element={<About />} />
+            <Route path="/contact"                     element={<Contact />} />
+            <Route path="/newsletter"                  element={<Newsletter />} />
+            <Route path="/tools/solar-calculator"      element={<SolarCalculator />} />
+            <Route path="/tools/cost-comparison"       element={<CostComparison />} />
+            <Route path="/tools/water-tank-calculator" element={<WaterTankCalc />} />
+            <Route path="*"                            element={<NotFound />} />
           </Routes>
         </Suspense>
       </motion.div>
@@ -96,6 +101,7 @@ function AnimatedRoutes() {
 export default function App() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <ReadingProgress />
       <ScrollToTop />
       <Navbar />
       <main style={{ flex: 1 }}>

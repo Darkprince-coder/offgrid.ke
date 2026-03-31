@@ -12,10 +12,14 @@ const VALUES = [
 export default function About() {
   return (
     <div style={{ maxWidth: '860px', margin: '0 auto', padding: '4rem 5% 6rem' }}>
-  <SEOHead
+<SEOHead
   title="About OFFGRID.KE — Kenya's Free Off-Grid Resource"
   description="OFFGRID.KE helps Kenyans make smarter off-grid decisions with real prices, practical guides, and honest advice on solar, water, and security systems."
   canonical="/about"
+  breadcrumbs={[
+    { name: 'Home',  url: '/' },
+    { name: 'About', url: '/about' },
+  ]}
 />
 
       {/* Breadcrumb */}

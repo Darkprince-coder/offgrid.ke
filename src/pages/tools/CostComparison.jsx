@@ -61,11 +61,15 @@ export default function CostComparison() {
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '3rem 5% 6rem' }}>
       <SEOHead
-        title="KPLC vs Solar vs Generator Cost Comparison Kenya 2026"
-        description="Compare the real 10-year cost of KPLC grid power, solar, and generator in Kenya. See payback periods and KSh savings with our free tool."
-        canonical="/tools/cost-comparison"
-        breadcrumbs={[{ name: 'Home', url: '/' }, { name: 'Tools', url: '/#tools' }, { name: 'Cost Comparison', url: '/tools/cost-comparison' }]}
-      />
+      title="KPLC vs Solar vs Generator Cost Comparison Kenya 2026"
+      description="Compare the real 10-year cost of KPLC grid power, solar, and generator in Kenya. See payback periods and KSh savings with our free tool."
+      canonical="/tools/cost-comparison"
+      breadcrumbs={[
+        { name: 'Home',            url: '/' },
+        { name: 'Tools',           url: '/#tools' },
+        { name: 'Cost Comparison', url: '/tools/cost-comparison' },
+      ]}
+    />
 
       {/* Header */}
       <div style={{ marginBottom: '2rem' }}>
