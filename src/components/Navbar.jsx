@@ -231,7 +231,7 @@ export default function Navbar() {
               variants={overlayVariants}
               initial="hidden" animate="visible" exit="exit"
               onClick={() => setMobileOpen(false)}
-              style={{ position: 'fixed', inset: 0, background: 'rgba(26,18,8,0.55)', zIndex: 996, backdropFilter: 'blur(2px)' }}
+              style={{ position: 'fixed', inset: 0, background: 'rgba(26,18,8,0.55)', zIndex: 1000, backdropFilter: 'blur(2px)' }}
             />
 
             {/* Slide-in panel */}
@@ -239,7 +239,7 @@ export default function Navbar() {
               key="panel"
               variants={mobileMenuVariants}
               initial="hidden" animate="visible" exit="exit"
-              style={{ position: 'fixed', top: 0, right: 0, bottom: 0, width: 'min(320px, 88vw)', background: 'var(--color-paper)', zIndex: 997, display: 'flex', flexDirection: 'column', overflowY: 'auto', boxShadow: '-8px 0 40px rgba(26,18,8,0.18)' }}>
+              style={{ position: 'fixed', top: 0, right: 0, bottom: 0, width: 'min(320px, 88vw)', background: 'var(--color-paper)', zIndex: 1001, display: 'flex', flexDirection: 'column', overflowY: 'auto', boxShadow: '-8px 0 40px rgba(26,18,8,0.18)' }}>
 
               {/* Panel header */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.2rem 1.4rem', borderBottom: '1px solid var(--color-rule)', flexShrink: 0 }}>

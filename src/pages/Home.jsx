@@ -264,16 +264,16 @@ export default function Home() {
             </motion.div>
 
             {/* Vendor directory — coming soon */}
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2, duration: 0.4 }}>
-              <div style={{ border: '1.5px solid var(--color-rule)', borderRadius: '12px', padding: '1.8rem', background: '#fff', position: 'relative' }}>
-                <span style={{ position: 'absolute', top: '1rem', right: '1rem', fontSize: '0.6rem', fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase', background: 'var(--color-paper-2)', color: 'var(--color-muted)', padding: '0.18rem 0.55rem', borderRadius: '4px' }}>Coming Soon</span>
-                <div style={{ width: '50px', height: '50px', borderRadius: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', background: '#ece8f5' }}>
-                  <MapPin size={24} strokeWidth={2.5} color="#7c3aed" />
+           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1, duration: 0.4 }}>
+              <Link to="/tools/water-tank-calculator" style={{ border: '2px solid var(--color-sky)', borderRadius: '12px', padding: '1.8rem', background: '#fff', position: 'relative', display: 'block', color: 'inherit' }}>
+                <span style={{ position: 'absolute', top: '1rem', right: '1rem', fontSize: '0.6rem', fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase', background: '#e0f0f8', color: 'var(--color-sky)', padding: '0.18rem 0.55rem', borderRadius: '4px' }}>Live</span>
+                <div style={{ width: '50px', height: '50px', borderRadius: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', background: '#e0f0f8' }}>
+                  <Droplets size={24} strokeWidth={2.5} color="var(--color-sky)" />
                 </div>
-                <h3 style={{ fontSize: '0.98rem', fontWeight: 700, color: 'var(--color-ink)', marginBottom: '0.45rem' }}>Vendor Directory</h3>
-                <p style={{ fontSize: '0.84rem', color: 'var(--color-muted)', lineHeight: 1.6, marginBottom: '1.2rem' }}>Find vetted solar, water, and security installers near you with verified reviews from real homeowners.</p>
-                <Link to="/contact" style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--color-sky)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>Suggest an installer <ArrowRight size={13} strokeWidth={2.5} /></Link>
-              </div>
+                <h3 style={{ fontSize: '0.98rem', fontWeight: 700, color: 'var(--color-ink)', marginBottom: '0.45rem' }}>Water Tank Calculator</h3>
+                <p style={{ fontSize: '0.84rem', color: 'var(--color-muted)', lineHeight: 1.6, marginBottom: '1.2rem' }}>Calculate the size and cost of water tanks for your household and get recommendations based on your needs.</p>
+                <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--color-sky)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>Calculate tank size <ArrowRight size={13} strokeWidth={2.5} /></span>
+              </Link>
             </motion.div>
           </div>
         </div>
