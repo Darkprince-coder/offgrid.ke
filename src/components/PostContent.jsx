@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom'
-import { Info, Lightbulb, AlertTriangle, ArrowRight, Calculator } from 'lucide-react'
+import { Lightbulb, AlertTriangle, ArrowRight, Calculator } from 'lucide-react'
 
-// Generate slug ID from h2 text — must match extractHeadings() in Post.jsx
 const slugify = (text) => text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
 
 function Callout({ title, text, sky }) {
@@ -19,14 +18,15 @@ function Callout({ title, text, sky }) {
   )
 }
 
+// ── Table wrapped in a scrollable div for mobile ──────────────────────────────
 function DataTable({ headers, rows }) {
   return (
-    <div style={{ overflowX: 'auto', margin: '1.8rem 0' }}>
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem', border: '1px solid var(--color-rule)', borderRadius: '10px', overflow: 'hidden' }}>
+    <div className="table-scroll-wrap">
+      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem', border: '1px solid var(--color-rule)', borderRadius: '10px', overflow: 'hidden', minWidth: '500px' }}>
         <thead>
           <tr>
             {headers.map((h, i) => (
-              <th key={i} style={{ background: 'var(--color-ink)', color: '#fff', padding: '0.78rem 1rem', textAlign: 'left', fontSize: '0.75rem', letterSpacing: '0.8px', textTransform: 'uppercase', fontWeight: 600 }}>{h}</th>
+              <th key={i} style={{ background: 'var(--color-ink)', color: '#fff', padding: '0.78rem 1rem', textAlign: 'left', fontSize: '0.75rem', letterSpacing: '0.8px', textTransform: 'uppercase', fontWeight: 600, whiteSpace: 'nowrap' }}>{h}</th>
             ))}
           </tr>
         </thead>
@@ -34,7 +34,7 @@ function DataTable({ headers, rows }) {
           {rows.map((row, ri) => (
             <tr key={ri}>
               {row.map((cell, ci) => (
-                <td key={ci} style={{ padding: '0.75rem 1rem', borderBottom: ri < rows.length - 1 ? '1px solid var(--color-rule)' : 'none', color: 'var(--color-ink-2)', background: ri % 2 === 1 ? 'var(--color-paper-2)' : 'transparent' }}>{cell}</td>
+                <td key={ci} style={{ padding: '0.75rem 1rem', borderBottom: ri < rows.length - 1 ? '1px solid var(--color-rule)' : 'none', color: 'var(--color-ink-2)', background: ri % 2 === 1 ? 'var(--color-paper-2)' : 'transparent', whiteSpace: ci === 0 ? 'normal' : 'nowrap' }}>{cell}</td>
               ))}
             </tr>
           ))}
@@ -65,7 +65,6 @@ export default function PostContent({ content }) {
       {content.map((block, i) => {
         switch (block.type) {
           case 'h2':
-            // Add id for TOC anchor linking
             return <h2 key={i} id={slugify(block.text)}>{block.text}</h2>
           case 'h3':
             return <h3 key={i} id={slugify(block.text)}>{block.text}</h3>

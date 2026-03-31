@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import {
   Lightbulb, Tv2, Radio, Laptop, Smartphone, Wifi,
@@ -6,10 +6,11 @@ import {
   Coffee, Wind, Shirt, Camera, Sun, Printer,
   Battery, Zap, Wrench, Download, RotateCcw,
   ChevronRight, MapPin, Check, AlertTriangle, BookOpen,
-  Plus, Trash2, Edit3, ChevronDown, ChevronUp, Info, Share2, X
+  Plus, Trash2, ChevronDown, ChevronUp, Info, Share2, X
 } from 'lucide-react'
 import SEOHead from '../../components/SEOHead'
 import { PRICES, COUNTIES, FORMSPREE_URL, fmt, fmtN } from '../../data/constants'
+import { downloadPDF } from '../../utils/downloadPDF'
 
 // ── Default appliances ────────────────────────────────────────────────────────
 const DEFAULT_APPLIANCES = [
@@ -132,7 +133,6 @@ function EnergyBreakdownBar({ appliances }) {
   )
 }
 
-// ── Share results via URL ─────────────────────────────────────────────────────
 function buildShareUrl(countyIdx, battType, battDays, activeIds) {
   const params = new URLSearchParams({ c: countyIdx, b: battType, d: battDays, a: activeIds.join(',') })
   return `${window.location.origin}/tools/solar-calculator?${params.toString()}`
@@ -141,38 +141,35 @@ function buildShareUrl(countyIdx, battType, battDays, activeIds) {
 // ── Main Calculator ───────────────────────────────────────────────────────────
 export default function SolarCalculator() {
   const [searchParams] = useSearchParams()
-
-  // Restore from URL params if present
   const initCounty   = Number(searchParams.get('c') || 0)
   const initBattType = searchParams.get('b') || 'lithium'
   const initBattDays = Number(searchParams.get('d') || 1)
   const initActive   = searchParams.get('a') ? searchParams.get('a').split(',').map(Number) : null
 
-  const [step,        setStep]        = useState(initActive ? 3 : 1)
-  const [appliances,  setAppliances]  = useState(() =>
-    initActive
-      ? DEFAULT_APPLIANCES.map(a => ({ ...a, active: initActive.includes(a.id) }))
-      : DEFAULT_APPLIANCES
+  const [step,         setStep]         = useState(initActive ? 3 : 1)
+  const [appliances,   setAppliances]   = useState(() =>
+    initActive ? DEFAULT_APPLIANCES.map(a => ({ ...a, active: initActive.includes(a.id) })) : DEFAULT_APPLIANCES
   )
-  const [countyIdx,   setCountyIdx]   = useState(initCounty)
-  const [battType,    setBattType]    = useState(initBattType)
-  const [battDays,    setBattDays]    = useState(initBattDays)
-  const [showAll,     setShowAll]     = useState(false)
-  const [editingId,   setEditingId]   = useState(null)
-  const [editingName, setEditingName] = useState('')
-  const [showAddForm, setShowAddForm] = useState(false)
-  const [customName,  setCustomName]  = useState('')
-  const [customW,     setCustomW]     = useState('')
-  const [customH,     setCustomH]     = useState('')
-  const [customSurge, setCustomSurge] = useState('1.2')
-  const [leadName,    setLeadName]    = useState('')
-  const [leadPhone,   setLeadPhone]   = useState('')
-  const [leadCounty,  setLeadCounty]  = useState('')
-  const [leadSent,    setLeadSent]    = useState(false)
-  const [leadLoading, setLeadLoading] = useState(false)
-  const [copied,      setCopied]      = useState(false)
+  const [countyIdx,    setCountyIdx]    = useState(initCounty)
+  const [battType,     setBattType]     = useState(initBattType)
+  const [battDays,     setBattDays]     = useState(initBattDays)
+  const [showAll,      setShowAll]      = useState(false)
+  const [editingId,    setEditingId]    = useState(null)
+  const [editingName,  setEditingName]  = useState('')
+  const [showAddForm,  setShowAddForm]  = useState(false)
+  const [customName,   setCustomName]   = useState('')
+  const [customW,      setCustomW]      = useState('')
+  const [customH,      setCustomH]      = useState('')
+  const [customSurge,  setCustomSurge]  = useState('1.2')
+  const [leadName,     setLeadName]     = useState('')
+  const [leadPhone,    setLeadPhone]    = useState('')
+  const [leadCounty,   setLeadCounty]   = useState('')
+  const [leadSent,     setLeadSent]     = useState(false)
+  const [leadLoading,  setLeadLoading]  = useState(false)
+  const [copied,       setCopied]       = useState(false)
+  const [pdfLoading,   setPdfLoading]   = useState(false)
   const [resultsVisible, setResultsVisible] = useState(initActive ? true : false)
-  const [showHint,    setShowHint]    = useState(null)
+  const [showHint,     setShowHint]     = useState(null)
   const resultsRef = useRef(null)
 
   const county   = COUNTIES[countyIdx]
@@ -198,6 +195,17 @@ export default function SolarCalculator() {
   const goToResults = () => {
     setStep(3)
     setTimeout(() => { setResultsVisible(true); resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }, 50)
+  }
+
+  const handleDownload = async () => {
+    setPdfLoading(true)
+    try {
+      await downloadPDF(R, county, battDays, appliances)
+    } catch (e) {
+      console.error('PDF error:', e)
+    } finally {
+      setPdfLoading(false)
+    }
   }
 
   const copyShareLink = () => {
@@ -227,14 +235,14 @@ export default function SolarCalculator() {
     else                          { inverterKw = 12; inverterCost = PRICES.inverter12kw; inverterLabel = '12kW Hybrid (Deye / Victron)' }
 
     const battWhNeeded = dailyWhAdj * battDays
-    let battCount, battCostEach, battTotalCost, battLabel, battSpec
+    let battCount, battTotalCost, battLabel, battSpec
     if (battType === 'lithium') {
       battCount = Math.ceil(battWhNeeded / (24 * 100 * 0.9))
-      battCostEach = PRICES.battLiPo100; battTotalCost = battCount * battCostEach
+      battTotalCost = battCount * PRICES.battLiPo100
       battLabel = `${battCount} × 100Ah LiFePO4 (24V)`; battSpec = `${(battCount * 24 * 100 * 0.9 / 1000).toFixed(1)} kWh usable`
     } else {
       battCount = Math.ceil(battWhNeeded / (12 * 200 * 0.5))
-      battCostEach = PRICES.battLead200; battTotalCost = battCount * battCostEach
+      battTotalCost = battCount * PRICES.battLead200
       battLabel = `${battCount} × 200Ah Lead-Acid (12V)`; battSpec = `${(battCount * 12 * 200 * 0.5 / 1000).toFixed(1)} kWh usable`
     }
 
@@ -252,16 +260,6 @@ export default function SolarCalculator() {
     return { dailyWh: Math.round(dailyWh), dailyWhAdj: Math.round(dailyWhAdj), solarW: Math.round(solarW), panels300, panels400, totalKwp, peakSurge: Math.round(peakSurge), inverterKw, inverterLabel, inverterCost, battLabel, battSpec, battTotalCost, panelCost300, panelCost400, extras, total300, total400, monthlyKplc: Math.round(monthlyKplc), monthlySaving: Math.round(monthlySaving), paybackYrs, tenYrSaving: Math.round(tenYrSaving), topConsumers, activeCount: active.length }
   }, [appliances, sunHours, battType, battDays])
 
-  const downloadResults = () => {
-    const activeList = appliances.filter(a => a.active && a.watts > 0)
-      .map(a => `  ${a.name.padEnd(28)} ${String(a.watts + 'W').padEnd(8)} × ${a.hours}h/day = ${Math.round(a.watts * a.hours)}Wh`).join('\n')
-    const text = `OFFGRID.KE — Solar System Estimate\nGenerated: ${new Date().toLocaleDateString('en-KE', { dateStyle: 'long' })}\nCounty: ${county.name}\n${'='.repeat(60)}\n\nAPPLIANCES\n${activeList}\n\nDAILY ENERGY\nActual usage: ${(R.dailyWh/1000).toFixed(2)} kWh\nAfter losses: ${(R.dailyWhAdj/1000).toFixed(2)} kWh\nSolar needed: ${R.solarW}W\n\nSYSTEM\nPanels:    ${R.panels300} × 300W (${R.totalKwp.toFixed(1)} kWp)\nInverter:  ${R.inverterLabel}\nBatteries: ${R.battLabel} — ${R.battSpec}\n\nCOST\nPanels:        ${fmt(R.panelCost300)}\nInverter:      ${fmt(R.inverterCost)}\nBatteries:     ${fmt(R.battTotalCost)}\nInstallation:  ${fmt(R.extras)}\nTOTAL:         ${fmt(R.total300)}\n\nPayback: ~${R.paybackYrs} years\n10-yr savings: ${fmt(R.tenYrSaving)}\n\nSource: offgrid.ke/tools/solar-calculator\nPrices: Nairobi market, March 2026. Get 3+ quotes.\n`
-    const blob = new Blob([text], { type: 'text/plain' })
-    const url  = URL.createObjectURL(blob)
-    const a    = document.createElement('a'); a.href = url; a.download = 'offgrid-ke-solar-estimate.txt'; a.click()
-    URL.revokeObjectURL(url)
-  }
-
   const inputStyle   = { width: '100%', padding: '0.6rem 0.85rem', borderRadius: '7px', border: '1.5px solid var(--color-rule)', fontSize: '0.9rem', background: 'var(--color-paper)', color: 'var(--color-ink)', outline: 'none', boxSizing: 'border-box' }
   const btnPrimary   = { background: 'var(--color-sun)', color: '#fff', border: 'none', padding: '0.85rem 1.8rem', borderRadius: '9px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', width: '100%' }
   const btnSecondary = { background: 'var(--color-paper-2)', color: 'var(--color-ink-2)', border: '1px solid var(--color-rule)', padding: '0.75rem 1.4rem', borderRadius: '9px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }
@@ -275,7 +273,6 @@ export default function SolarCalculator() {
         breadcrumbs={[{ name: 'Home', url: '/' }, { name: 'Tools', url: '/#tools' }, { name: 'Solar Calculator', url: '/tools/solar-calculator' }]}
       />
 
-      {/* Header */}
       <div style={{ marginBottom: '2rem' }}>
         <div style={{ display: 'flex', gap: '0.5rem', fontSize: '0.75rem', marginBottom: '0.8rem', flexWrap: 'wrap', alignItems: 'center' }}>
           <Link to="/" style={{ color: 'var(--color-sky)', fontWeight: 600 }}>Home</Link>
@@ -295,7 +292,6 @@ export default function SolarCalculator() {
 
         {/* LEFT */}
         <div>
-          {/* STEP 1 */}
           <div style={{ background: '#fff', border: '1.5px solid var(--color-rule)', borderRadius: '14px', overflow: 'hidden', marginBottom: '1.5rem' }}>
             <div style={{ background: 'var(--color-ink)', padding: '1rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1rem', fontWeight: 700, color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -307,8 +303,6 @@ export default function SolarCalculator() {
               </div>
             </div>
             <div style={{ padding: '1.2rem 1.5rem' }}>
-
-              {/* County */}
               <div style={{ marginBottom: '1.2rem' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 600, fontSize: '0.84rem', color: 'var(--color-ink)', marginBottom: '0.45rem' }}>
                   <MapPin size={14} strokeWidth={2.5} color="var(--color-sun)" /> Your county or region
@@ -318,18 +312,16 @@ export default function SolarCalculator() {
                 </select>
               </div>
 
-              {/* Column headers */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 72px 56px 44px', gap: '0.4rem', padding: '0 0.9rem 0.4rem' }}>
                 {['Appliance', 'Watts', 'Hrs/day', 'Wh'].map(h => (
                   <span key={h} style={{ fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.7px', color: 'var(--color-muted)', textAlign: h !== 'Appliance' ? 'center' : 'left' }}>{h}</span>
                 ))}
               </div>
 
-              {/* Appliance rows */}
               <div style={{ border: '1px solid var(--color-rule)', borderRadius: '8px', overflow: 'hidden' }}>
                 {visible.map((a, idx) => {
-                  const wh     = Math.round(a.watts * a.hours)
-                  const isLast = idx === visible.length - 1
+                  const wh       = Math.round(a.watts * a.hours)
+                  const isLast   = idx === visible.length - 1
                   const isCustom = a.id > 16
                   return (
                     <div key={a.id} style={{ display: 'grid', gridTemplateColumns: '1fr 72px 56px 44px', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 0.9rem', borderBottom: !isLast ? '1px solid var(--color-rule)' : 'none', background: a.active ? '#fff' : 'var(--color-paper)', position: 'relative' }}>
@@ -343,7 +335,7 @@ export default function SolarCalculator() {
                             style={{ flex: 1, fontSize: '0.83rem', padding: '0.18rem 0.35rem', border: '1.5px solid var(--color-sun)', borderRadius: 5, outline: 'none', minWidth: 0, color: 'var(--color-ink)', background: '#fffaf5' }} />
                         ) : (
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', minWidth: 0, flex: 1 }}>
-                            <span onClick={() => { setEditingId(a.id); setEditingName(a.name) }} style={{ fontSize: '0.83rem', color: a.active ? 'var(--color-ink)' : 'var(--color-muted)', fontWeight: a.active ? 500 : 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'text', flex: 1 }} title="Click to rename">{a.name}</span>
+                            <span onClick={() => { setEditingId(a.id); setEditingName(a.name) }} style={{ fontSize: '0.83rem', color: a.active ? 'var(--color-ink)' : 'var(--color-muted)', fontWeight: a.active ? 500 : 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'text', flex: 1 }}>{a.name}</span>
                             {WATT_HINTS[a.id] && <button onClick={() => setShowHint(showHint === a.id ? null : a.id)} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--color-muted)', display: 'flex', flexShrink: 0 }}><Info size={11} strokeWidth={2.5} /></button>}
                             {isCustom && <button onClick={() => removeApp(a.id)} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#c0392b', display: 'flex', flexShrink: 0 }}><Trash2 size={12} strokeWidth={2.5} /></button>}
                           </div>
@@ -366,14 +358,12 @@ export default function SolarCalculator() {
                 })}
               </div>
 
-              {/* Watt hint */}
               {showHint && WATT_HINTS[showHint] && (
                 <div style={{ marginTop: '0.5rem', background: '#fffaf0', border: '1px solid #f5d9c0', borderLeft: '3px solid var(--color-sun)', borderRadius: 8, padding: '0.6rem 0.9rem', fontSize: '0.78rem', color: 'var(--color-ink-2)', lineHeight: 1.6 }}>
                   💡 {WATT_HINTS[showHint]}
                 </div>
               )}
 
-              {/* Show more/less */}
               {appliances.length > 10 && (
                 <button onClick={() => setShowAll(p => !p)} style={{ width: '100%', marginTop: '0.5rem', background: 'none', border: '1px dashed var(--color-rule)', borderRadius: 7, padding: '0.45rem', fontSize: '0.8rem', color: 'var(--color-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem' }}>
                   {showAll ? <><ChevronUp size={14} strokeWidth={2.5} /> Show fewer</> : <><ChevronDown size={14} strokeWidth={2.5} /> Show all {appliances.length} appliances</>}
@@ -382,7 +372,6 @@ export default function SolarCalculator() {
 
               <EnergyBreakdownBar appliances={appliances} />
 
-              {/* Add custom */}
               <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px dashed var(--color-rule)' }}>
                 {!showAddForm ? (
                   <button onClick={() => setShowAddForm(true)} style={{ width: '100%', background: 'var(--color-paper-2)', border: '1.5px dashed var(--color-rule)', borderRadius: 8, padding: '0.6rem', fontSize: '0.83rem', fontWeight: 600, color: 'var(--color-ink-2)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}>
@@ -397,7 +386,7 @@ export default function SolarCalculator() {
                         {[
                           { label: 'Watts (W) *', val: customW, set: setCustomW, ph: 'e.g. 150' },
                           { label: 'Hours/day *', val: customH, set: setCustomH, ph: 'e.g. 8' },
-                          { label: 'Surge ×',     val: customSurge, set: setCustomSurge, ph: '1.2', step: '0.1' },
+                          { label: 'Surge ×', val: customSurge, set: setCustomSurge, ph: '1.2', step: '0.1' },
                         ].map(f => (
                           <div key={f.label}>
                             <label style={{ fontSize: '0.72rem', color: 'var(--color-muted)', display: 'block', marginBottom: '0.2rem', fontWeight: 600 }}>{f.label}</label>
@@ -421,7 +410,6 @@ export default function SolarCalculator() {
             </div>
           </div>
 
-          {/* STEP 2 */}
           {step >= 2 && (
             <div style={{ background: '#fff', border: '1.5px solid var(--color-rule)', borderRadius: '14px', overflow: 'hidden', marginBottom: '1.5rem', animation: 'fadeUp 0.35s ease' }}>
               <div style={{ background: 'var(--color-sky)', padding: '1rem 1.5rem' }}>
@@ -503,8 +491,6 @@ export default function SolarCalculator() {
             </div>
           ) : (
             <div style={{ animation: resultsVisible ? 'fadeUp 0.4s ease' : 'none' }}>
-
-              {/* Energy profile */}
               <div style={{ background: 'var(--color-ink)', borderRadius: '14px', padding: '1.6rem', marginBottom: '1.2rem' }}>
                 <div style={{ fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1.5px', color: 'rgba(255,255,255,0.4)', marginBottom: '0.8rem' }}>Daily Energy Profile</div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
@@ -528,7 +514,6 @@ export default function SolarCalculator() {
                 )}
               </div>
 
-              {/* Total callout */}
               <div style={{ background: 'var(--color-sun)', borderRadius: '12px', padding: '1.2rem 1.5rem', marginBottom: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
                 <div>
                   <div style={{ fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1.5px', color: 'rgba(255,255,255,0.7)', marginBottom: '0.2rem' }}>Recommended System</div>
@@ -540,7 +525,6 @@ export default function SolarCalculator() {
                 </div>
               </div>
 
-              {/* Components */}
               <div style={{ marginBottom: '1.2rem' }}>
                 <div style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--color-muted)', marginBottom: '0.7rem' }}>System Components</div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem' }}>
@@ -551,7 +535,6 @@ export default function SolarCalculator() {
                 </div>
               </div>
 
-              {/* Cost breakdown */}
               <div style={{ background: '#fff', border: '1.5px solid var(--color-rule)', borderRadius: '12px', padding: '1.3rem', marginBottom: '1.2rem' }}>
                 <div style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--color-muted)', marginBottom: '0.7rem' }}>Cost Breakdown</div>
                 <ResultRow label={`${R.panels300} × 300W panels`}       value={fmt(R.panelCost300)} />
@@ -563,10 +546,9 @@ export default function SolarCalculator() {
                   <span style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--color-ink)' }}>Total (300W panels)</span>
                   <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.4rem', fontWeight: 800, color: 'var(--color-sun)' }}>{fmt(R.total300)}</span>
                 </div>
-                <p style={{ fontSize: '0.7rem', color: 'var(--color-muted)', marginTop: '0.5rem', fontStyle: 'italic', lineHeight: 1.5 }}>Nairobi market prices, March 2026. Get at least 3 quotes before committing.</p>
+                <p style={{ fontSize: '0.7rem', color: 'var(--color-muted)', marginTop: '0.5rem', fontStyle: 'italic', lineHeight: 1.5 }}>Nairobi market prices, March 2026. Get at least 3 quotes.</p>
               </div>
 
-              {/* ROI */}
               {R.monthlyKplc > 0 && (
                 <div style={{ background: 'linear-gradient(135deg,var(--color-sky),#0e3f57)', borderRadius: '12px', padding: '1.3rem', marginBottom: '1.2rem' }}>
                   <div style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', color: 'rgba(255,255,255,0.5)', marginBottom: '0.8rem' }}>Return on Investment</div>
@@ -588,10 +570,13 @@ export default function SolarCalculator() {
 
               {/* Actions */}
               <div style={{ display: 'flex', gap: '0.7rem', flexWrap: 'wrap', marginBottom: '1.2rem' }}>
-                <button onClick={downloadResults} style={{ flex: 1, background: 'var(--color-ink)', color: '#fff', border: 'none', padding: '0.75rem 1rem', borderRadius: '8px', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-                  <Download size={14} strokeWidth={2.5} /> Download
+                <button onClick={handleDownload} disabled={pdfLoading}
+                  style={{ flex: 1, background: 'var(--color-ink)', color: '#fff', border: 'none', padding: '0.75rem 1rem', borderRadius: '8px', fontWeight: 700, fontSize: '0.85rem', cursor: pdfLoading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', opacity: pdfLoading ? 0.7 : 1, transition: 'opacity 0.2s' }}>
+                  <Download size={14} strokeWidth={2.5} />
+                  {pdfLoading ? 'Generating PDF...' : 'Download PDF'}
                 </button>
-                <button onClick={copyShareLink} style={{ flex: 1, background: copied ? '#2d6a2d' : 'var(--color-paper-2)', color: copied ? '#fff' : 'var(--color-ink)', border: '1px solid var(--color-rule)', padding: '0.75rem 1rem', borderRadius: '8px', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', transition: 'all 0.2s' }}>
+                <button onClick={copyShareLink}
+                  style={{ flex: 1, background: copied ? '#2d6a2d' : 'var(--color-paper-2)', color: copied ? '#fff' : 'var(--color-ink)', border: '1px solid var(--color-rule)', padding: '0.75rem 1rem', borderRadius: '8px', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', transition: 'all 0.2s' }}>
                   {copied ? <><Check size={14} strokeWidth={2.5} /> Copied!</> : <><Share2 size={14} strokeWidth={2.5} /> Share</>}
                 </button>
                 <button onClick={() => { setStep(1); setResultsVisible(false); setAppliances(DEFAULT_APPLIANCES) }} style={btnSecondary}>
@@ -635,7 +620,6 @@ export default function SolarCalculator() {
                 )}
               </div>
 
-              {/* Related */}
               <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
                 <Link to="/posts/solar-3-bedroom-house" style={{ flex: 1, background: 'var(--color-paper-2)', border: '1px solid var(--color-rule)', color: 'var(--color-ink)', padding: '0.65rem 1rem', borderRadius: '8px', fontWeight: 600, fontSize: '0.83rem', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}>
                   <BookOpen size={14} strokeWidth={2.5} /> Solar Guide

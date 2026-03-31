@@ -49,14 +49,13 @@ button { cursor: pointer; }
 /* ── Post content typography ────────────────────────── */
 .post-content { font-size: 0.98rem; line-height: 1.82; color: var(--color-ink-2); }
 
-/* h2 sections get anchor IDs for TOC linking */
 .post-content h2 {
   font-family: var(--font-display);
   font-size: 1.45rem;
   font-weight: 700;
   color: var(--color-ink);
   margin: 2.5rem 0 0.9rem;
-  scroll-margin-top: 90px; /* offset for sticky navbar */
+  scroll-margin-top: 90px;
 }
 .post-content h3 {
   font-size: 1.08rem;
@@ -80,6 +79,12 @@ button { cursor: pointer; }
   font-style: italic;
   color: var(--color-ink-2);
 }
+
+/* ── TABLE — mobile horizontal scroll ─────────────────
+   This is the key fix: wrap tables in a scrollable container
+   so content at the far right is reachable on small screens.
+   The -webkit-overflow-scrolling enables momentum scroll on iOS.
+────────────────────────────────────────────────────── */
 .post-content table {
   width: 100%;
   border-collapse: collapse;
@@ -98,6 +103,7 @@ button { cursor: pointer; }
   letter-spacing: 0.8px;
   text-transform: uppercase;
   font-weight: 600;
+  white-space: nowrap; /* prevent headers wrapping on mobile */
 }
 .post-content td {
   padding: 0.75rem 1rem;
@@ -106,6 +112,21 @@ button { cursor: pointer; }
 }
 .post-content tr:last-child td { border-bottom: none; }
 .post-content tr:nth-child(even) td { background: var(--color-paper-2); }
+
+/* Scrollable table wrapper — applied by PostContent.jsx */
+.table-scroll-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 1.8rem 0;
+  /* Subtle shadow cue on the right edge so users know there's more */
+  background:
+    linear-gradient(to right, var(--color-paper) 10%, transparent) left / 30px 100% no-repeat,
+    linear-gradient(to left,  var(--color-paper) 10%, transparent) right / 30px 100% no-repeat,
+    radial-gradient(farthest-side at 0 50%, rgba(26,18,8,0.08), transparent) left  / 12px 100% no-repeat,
+    radial-gradient(farthest-side at 100% 50%, rgba(26,18,8,0.08), transparent) right / 12px 100% no-repeat;
+  background-attachment: local, local, scroll, scroll;
+}
+.table-scroll-wrap table { margin: 0; }
 
 /* ── Callout ──────────────────────────────────────────── */
 .callout {
@@ -146,17 +167,16 @@ button { cursor: pointer; }
 /* ── Loading skeleton pulse ───────────────────────────── */
 @keyframes pulse {
   0%, 100% { opacity: 1; }
-  50%       { opacity: 0.4; }
+  50%       { opacity: 0.35; }
 }
 
-/* ── Scroll reveal for images ─────────────────────────── */
+/* ── Scroll reveal for lazy images ───────────────────── */
 img[loading="lazy"] { transition: opacity 0.3s ease; }
 
 /* ── Responsive helpers ───────────────────────────────── */
 @media (max-width: 768px) { .hide-mobile  { display: none !important; } }
 @media (min-width: 769px) { .hide-desktop { display: none !important; } }
 
-/* ── Mobile table scroll ──────────────────────────────── */
-@media (max-width: 600px) {
-  .post-content table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-}
+/* ── Framer Motion page wrapper ───────────────────────── */
+/* Prevent layout shift during page transitions */
+[data-framer-motion] { will-change: opacity, transform; }
