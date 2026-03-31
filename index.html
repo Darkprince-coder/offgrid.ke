@@ -4,42 +4,46 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Primary meta — overridden dynamically by SEOHead.jsx per page -->
+    <!-- Primary meta (overridden per-page by SEOHead.jsx) -->
     <title>OFFGRID.KE — Kenya's Free Off-Grid Guide</title>
-    <meta name="description" content="Thinking of going off-grid in Kenya? Get real solar costs, water solutions, and step-by-step guides to save money and avoid costly mistakes." />
+    <meta name="description" content="Free guides, real local prices, and practical advice for going off-grid in Kenya. Solar, water, and security for homeowners, farmers, and small businesses." />
     <meta name="robots" content="index, follow, max-image-preview:large" />
     <link rel="canonical" href="https://offgrid.ke/" />
 
-    <!-- Open Graph base (overridden per page) -->
+    <!-- Geo targeting -->
+    <meta name="geo.region"    content="KE" />
+    <meta name="geo.placename" content="Kenya" />
+    <meta name="language"      content="English" />
+
+    <!-- Open Graph base -->
     <meta property="og:site_name"   content="OFFGRID.KE" />
     <meta property="og:locale"      content="en_KE" />
     <meta property="og:type"        content="website" />
-    <meta property="og:title"       content="Solar Cost in Kenya, Real Prices, No Guesswork" />
-    <meta property="og:description" content="Avoid overpriced solar setups. Learn real costs, smart sizing, and off-grid solutions that actually work in Kenya." />
+    <meta property="og:title"       content="OFFGRID.KE — Kenya's Free Off-Grid Guide" />
+    <meta property="og:description" content="Free guides, real local prices, and practical advice for going off-grid in Kenya." />
     <meta property="og:url"         content="https://offgrid.ke/" />
-    <meta property="og:image"       content="https://offgrid.ke/og-default.png" />
+    <meta property="og:image"       content="https://offgrid.ke/og-default.jpg" />
     <meta property="og:image:width"  content="1200" />
     <meta property="og:image:height" content="630" />
 
     <!-- Twitter card -->
     <meta name="twitter:card"        content="summary_large_image" />
-    <meta name="twitter:title"       content="Solar Cost in Kenya, Real Prices, No Guesswork" />
-    <meta name="twitter:description" content="Avoid overpriced solar setups. Learn real costs, smart sizing, and off-grid solutions that actually work in Kenya." />
-    <meta name="twitter:image"       content="https://offgrid.ke/og-default.png" />
+    <meta name="twitter:title"       content="OFFGRID.KE — Kenya's Free Off-Grid Guide" />
+    <meta name="twitter:description" content="Free guides, real local prices, and practical advice for going off-grid in Kenya." />
+    <meta name="twitter:image"       content="https://offgrid.ke/og-default.jpg" />
 
-    <!-- Geo targeting for Kenya -->
-    <meta name="geo.region"   content="KE" />
-    <meta name="geo.placename" content="Kenya" />
-    <meta name="language"      content="English" />
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
-
-    <!-- Favicon (add these files to /public) -->
+    <!-- Favicon -->
     <link rel="icon"             href="/favicon.ico" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
+
+    <!--
+      PERFORMANCE: Fonts loaded with font-display:swap so text renders
+      immediately in a fallback font, then swaps when the custom font loads.
+      Preconnect hints tell the browser to open connections early.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=Instrument+Sans:wght@400;500;600&display=swap&display=swap" rel="stylesheet" />
 
     <!-- Base JSON-LD (overridden per page by SEOHead) -->
     <script id="json-ld-schema" type="application/ld+json">

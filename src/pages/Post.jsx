@@ -1,49 +1,186 @@
 import { useParams, Link, Navigate } from 'react-router-dom'
-import { getPostBySlug, formatDate } from '../data/posts'
+import { useState, useEffect, useRef } from 'react'
+import { getPostBySlug, getAllPosts, formatDate } from '../data/posts'
 import PostContent from '../components/PostContent'
 import SEOHead from '../components/SEOHead'
+import { SITE_URL } from '../data/constants'
+import { ChevronUp, List, X } from 'lucide-react'
 
 const tagClass = { solar: 'tag-solar', water: 'tag-water', how: 'tag-how', security: 'tag-security' }
 
+// ── Extract h2 headings from post content for the TOC ────────────────────────
+function extractHeadings(content = []) {
+  return content
+    .filter(b => b.type === 'h2')
+    .map(b => ({
+      text: b.text,
+      id:   b.text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+    }))
+}
+
+// ── Table of Contents component ───────────────────────────────────────────────
+function TableOfContents({ headings }) {
+  const [active, setActive]   = useState('')
+  const [open,   setOpen]     = useState(false)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      entries => {
+        const visible = entries.find(e => e.isIntersecting)
+        if (visible) setActive(visible.target.id)
+      },
+      { rootMargin: '-20% 0px -70% 0px' }
+    )
+    headings.forEach(h => {
+      const el = document.getElementById(h.id)
+      if (el) observer.observe(el)
+    })
+    return () => observer.disconnect()
+  }, [headings])
+
+  if (headings.length < 3) return null
+
+  return (
+    <>
+      {/* Desktop sidebar TOC */}
+      <div className="toc-desktop" style={{ position: 'sticky', top: '90px', background: 'var(--color-paper-2)', border: '1px solid var(--color-rule)', borderRadius: 12, padding: '1.2rem', marginBottom: '2rem' }}>
+        <div style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--color-muted)', marginBottom: '0.8rem' }}>
+          In this guide
+        </div>
+        <nav>
+          {headings.map(h => (
+            <a key={h.id} href={`#${h.id}`}
+              style={{ display: 'block', fontSize: '0.82rem', padding: '0.3rem 0', paddingLeft: active === h.id ? '0.75rem' : '0', borderLeft: active === h.id ? '2px solid var(--color-sun)' : '2px solid transparent', color: active === h.id ? 'var(--color-ink)' : 'var(--color-muted)', fontWeight: active === h.id ? 600 : 400, transition: 'all 0.2s', lineHeight: 1.4, textDecoration: 'none' }}>
+              {h.text}
+            </a>
+          ))}
+        </nav>
+      </div>
+
+      {/* Mobile floating TOC button */}
+      <div className="toc-mobile" style={{ position: 'fixed', bottom: '5rem', right: '1rem', zIndex: 100 }}>
+        <button onClick={() => setOpen(o => !o)}
+          style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--color-ink)', color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}>
+          {open ? <X size={18} strokeWidth={2.5} /> : <List size={18} strokeWidth={2.5} />}
+        </button>
+        {open && (
+          <div style={{ position: 'absolute', bottom: '3rem', right: 0, width: 260, background: '#fff', border: '1px solid var(--color-rule)', borderRadius: 12, padding: '1rem', boxShadow: '0 8px 30px rgba(0,0,0,0.12)' }}>
+            <div style={{ fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--color-muted)', marginBottom: '0.6rem' }}>In this guide</div>
+            {headings.map(h => (
+              <a key={h.id} href={`#${h.id}`} onClick={() => setOpen(false)}
+                style={{ display: 'block', fontSize: '0.82rem', padding: '0.3rem 0', color: active === h.id ? 'var(--color-sun)' : 'var(--color-ink-2)', fontWeight: active === h.id ? 600 : 400, textDecoration: 'none', borderBottom: '1px solid var(--color-rule)', lineHeight: 1.4 }}>
+                {h.text}
+              </a>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
+  )
+}
+
+// ── Back to top button ────────────────────────────────────────────────────────
+function BackToTop() {
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    const fn = () => setVisible(window.scrollY > 600)
+    window.addEventListener('scroll', fn, { passive: true })
+    return () => window.removeEventListener('scroll', fn)
+  }, [])
+
+  return (
+    <button
+      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+      aria-label="Back to top"
+      style={{
+        position: 'fixed', bottom: '1rem', right: '1rem', zIndex: 100,
+        width: 44, height: 44, borderRadius: '50%',
+        background: 'var(--color-sun)', color: '#fff',
+        border: 'none', cursor: 'pointer',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(12px)',
+        transition: 'opacity 0.25s, transform 0.25s',
+        pointerEvents: visible ? 'auto' : 'none',
+      }}>
+      <ChevronUp size={20} strokeWidth={2.5} />
+    </button>
+  )
+}
+
+// ── Related posts ─────────────────────────────────────────────────────────────
+function RelatedPosts({ currentPost }) {
+  const all     = getAllPosts()
+  const related = all
+    .filter(p => p.slug !== currentPost.slug && p.tagColor === currentPost.tagColor)
+    .slice(0, 3)
+
+  if (related.length === 0) return null
+
+  return (
+    <div style={{ marginTop: '3rem', paddingTop: '2rem', borderTop: '1px solid var(--color-rule)' }}>
+      <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.1rem', fontWeight: 700, color: 'var(--color-ink)', marginBottom: '1rem' }}>
+        Related guides
+      </h3>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.75rem' }}>
+        {related.map(p => (
+          <Link key={p.slug} to={`/posts/${p.slug}`}
+            style={{ display: 'block', padding: '1rem', background: 'var(--color-paper-2)', border: '1px solid var(--color-rule)', borderRadius: 10, textDecoration: 'none', color: 'inherit', transition: 'border-color 0.2s' }}
+            onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--color-sun)'}
+            onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--color-rule)'}>
+            <span className={`tag ${tagClass[p.tagColor] || 'tag-how'}`} style={{ fontSize: '0.6rem', marginBottom: '0.4rem', display: 'inline-block' }}>{p.tag}</span>
+            <div style={{ fontSize: '0.86rem', fontWeight: 600, color: 'var(--color-ink)', lineHeight: 1.35, marginBottom: '0.3rem' }}>{p.title}</div>
+            <div style={{ fontSize: '0.72rem', color: 'var(--color-muted)' }}>{p.readTime} read →</div>
+          </Link>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ── Build FAQ data from post content (callouts become FAQ items) ──────────────
+function extractFAQs(content = []) {
+  const faqs = []
+  let lastH2 = ''
+  content.forEach(block => {
+    if (block.type === 'h2') lastH2 = block.text
+    if (block.type === 'callout' && block.title && block.text && lastH2) {
+      faqs.push({ q: lastH2, a: block.text })
+    }
+  })
+  return faqs.slice(0, 6)
+}
+
+// ── Main Post component ───────────────────────────────────────────────────────
 export default function Post() {
   const { slug } = useParams()
   const post = getPostBySlug(slug)
 
   if (!post) return <Navigate to="/404" replace />
 
-  // Build Article JSON-LD schema
+  const headings    = extractHeadings(post.content)
+  const faqs        = extractFAQs(post.content)
+  const hasHeadings = headings.length >= 3
+
+  // Inject IDs into h2 elements via PostContent (handled below)
   const articleSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'Article',
-    headline: post.title,
-    description: post.excerpt || post.title,
-    url: `https://offgrid.ke/posts/${post.slug}`,
+    '@context':  'https://schema.org',
+    '@type':     'Article',
+    headline:     post.title,
+    description:  post.excerpt || post.title,
+    url:         `${SITE_URL}/posts/${post.slug}`,
     datePublished: post.date,
-    dateModified: post.date,
-    author: {
-      '@type': 'Organization',
-      name: 'OFFGRID.KE',
-      url: 'https://offgrid.ke',
-    },
-    publisher: {
-      '@type': 'Organization',
-      name: 'OFFGRID.KE',
-      url: 'https://offgrid.ke',
-      logo: {
-        '@type': 'ImageObject',
-        url: 'https://offgrid.ke/og-default.jpg',
-      },
-    },
-    image: post.image
-      ? (post.image.startsWith('http') ? post.image : `https://offgrid.ke${post.image}`)
-      : 'https://offgrid.ke/og-default.jpg',
-    mainEntityOfPage: {
-      '@type': 'WebPage',
-      '@id': `https://offgrid.ke/posts/${post.slug}`,
-    },
-    keywords: `${post.tag}, Kenya, off-grid, solar Kenya, ${post.title}`,
+    dateModified:  post.date,
+    author:      { '@type': 'Organization', name: 'OFFGRID.KE', url: SITE_URL },
+    publisher:   { '@type': 'Organization', name: 'OFFGRID.KE', url: SITE_URL,
+                   logo: { '@type': 'ImageObject', url: `${SITE_URL}/og-default.jpg` } },
+    image:        post.image ? (post.image.startsWith('http') ? post.image : `${SITE_URL}${post.image}`) : `${SITE_URL}/og-default.jpg`,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': `${SITE_URL}/posts/${post.slug}` },
+    keywords:    `${post.tag}, Kenya, off-grid, solar Kenya, ${post.title}`,
     articleSection: post.tag,
-    inLanguage: 'en-KE',
+    inLanguage:  'en-KE',
   }
 
   return (
@@ -56,9 +193,15 @@ export default function Post() {
         type="article"
         article={{ publishedTime: post.date, tag: post.tag }}
         schema={articleSchema}
+        breadcrumbs={[
+          { name: 'Home',   url: '/' },
+          { name: 'Guides', url: '/posts' },
+          { name: post.title, url: `/posts/${post.slug}` },
+        ]}
+        faqs={faqs.length > 0 ? faqs : null}
       />
 
-      {/* Breadcrumb */}
+      {/* Breadcrumb bar */}
       <div style={{ background: 'var(--color-paper-2)', borderBottom: '1px solid var(--color-rule)', padding: '0.8rem 5%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.8rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', fontSize: '0.82rem', color: 'var(--color-muted)' }}>
           <Link to="/"      style={{ color: 'var(--color-sky)', fontWeight: 600 }}>Home</Link>
@@ -72,68 +215,96 @@ export default function Post() {
         </Link>
       </div>
 
-      {/* Article */}
-      <article style={{ padding: '4rem 5% 6rem' }}>
-        <div style={{ maxWidth: '740px', margin: '0 auto' }}>
+      {/* Article layout — 2 col on wide screens (TOC + content) */}
+      <article style={{ padding: '3rem 5% 6rem' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'grid', gridTemplateColumns: hasHeadings ? '220px 1fr' : '1fr', gap: '3rem', alignItems: 'start' }} className="post-grid">
 
-          {post.image && (
-            <div style={{ width: '100%', height: '280px', overflow: 'hidden', marginBottom: '2rem', borderRadius: '12px' }}>
-              <img src={post.image} alt={post.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            </div>
-          )}
+          {/* TOC sidebar */}
+          {hasHeadings && <TableOfContents headings={headings} />}
 
-          <p style={{ fontFamily: 'var(--font-display)', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-muted)', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
-            {post.tag} Guide · {post.readTime} read
-          </p>
+          {/* Main content */}
+          <div style={{ maxWidth: '740px', minWidth: 0 }}>
 
-          <div style={{ marginBottom: '0.9rem' }}>
-            <span className={`tag ${tagClass[post.tagColor] || 'tag-how'}`}>{post.tag}</span>
-          </div>
+            {post.image && (
+              <div style={{ width: '100%', height: '280px', overflow: 'hidden', marginBottom: '2rem', borderRadius: '12px' }}>
+                <img
+                  src={post.image}
+                  alt={`${post.title} — offgrid.ke guide`}
+                  loading="lazy"
+                  width="740"
+                  height="280"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              </div>
+            )}
 
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.9rem, 3.8vw, 2.7rem)', fontWeight: 800, lineHeight: 1.1, letterSpacing: '-1px', color: 'var(--color-ink)', marginBottom: '1rem' }}>
-            {post.title}
-          </h1>
-
-          {post.excerpt && (
-            <p style={{ fontSize: '1.05rem', color: 'var(--color-ink-2)', lineHeight: 1.75, fontStyle: 'italic', borderLeft: '3px solid var(--color-sun)', paddingLeft: '1.2rem', marginBottom: '1.6rem' }}>
-              {post.excerpt}
+            <p style={{ fontFamily: 'var(--font-display)', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-muted)', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
+              {post.tag} Guide · {post.readTime} read
             </p>
-          )}
-
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.8rem', alignItems: 'center', padding: '0.9rem 0', borderTop: '1px solid var(--color-rule)', borderBottom: '1px solid var(--color-rule)', marginBottom: '2.5rem', fontSize: '0.8rem', color: 'var(--color-muted)' }}>
-            <span>📅 {post.date ? formatDate(post.date) : '2024'}</span>
-            <span>·</span>
-            <span>⏱ {post.readTime} read</span>
-            <span>·</span>
-            <span>🇰🇪 Kenya-specific</span>
-            <span>·</span>
-            <span>✍️ Offgrid.ke</span>
-          </div>
-
-          <PostContent content={post.content} />
-
-          {/* Footer CTA */}
-          <div style={{ marginTop: '4rem', background: 'linear-gradient(135deg, var(--color-sky), #0e3f57)', borderRadius: '14px', padding: '2rem 2.2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem' }}>
-            <div>
-              <h4 style={{ fontFamily: 'var(--font-display)', fontSize: '1.15rem', color: '#fff', marginBottom: '0.3rem' }}>More guides coming soon</h4>
-              <p style={{ fontSize: '0.86rem', color: 'rgba(255,255,255,0.7)' }}>Subscribe to get notified when new guides are published.</p>
+            <div style={{ marginBottom: '0.9rem' }}>
+              <span className={`tag ${tagClass[post.tagColor] || 'tag-how'}`}>{post.tag}</span>
             </div>
-            <Link to="/newsletter" style={{ background: 'var(--color-sun)', color: '#fff', padding: '0.72rem 1.5rem', borderRadius: '8px', fontWeight: 700, fontSize: '0.88rem', whiteSpace: 'nowrap' }}>
-              Subscribe →
-            </Link>
-          </div>
 
-          {/* Nav */}
-          <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
-            <Link to="/posts" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-muted)', border: '1px solid var(--color-rule)', padding: '0.6rem 1.3rem', borderRadius: '8px', fontSize: '0.86rem', fontWeight: 600 }}>
-              ← Back to all guides
-            </Link>
-            <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'var(--color-paper-2)', color: 'var(--color-ink)', border: '1px solid var(--color-rule)', padding: '0.6rem 1.3rem', borderRadius: '8px', fontSize: '0.86rem', fontWeight: 600 }}>
-              🏠 Home
-            </Link>
+            <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.9rem, 3.8vw, 2.7rem)', fontWeight: 800, lineHeight: 1.1, letterSpacing: '-1px', color: 'var(--color-ink)', marginBottom: '1rem' }}>
+              {post.title}
+            </h1>
+
+            {post.excerpt && (
+              <p style={{ fontSize: '1.05rem', color: 'var(--color-ink-2)', lineHeight: 1.75, fontStyle: 'italic', borderLeft: '3px solid var(--color-sun)', paddingLeft: '1.2rem', marginBottom: '1.6rem' }}>
+                {post.excerpt}
+              </p>
+            )}
+
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.8rem', alignItems: 'center', padding: '0.9rem 0', borderTop: '1px solid var(--color-rule)', borderBottom: '1px solid var(--color-rule)', marginBottom: '2.5rem', fontSize: '0.8rem', color: 'var(--color-muted)' }}>
+              <span>📅 {post.date ? formatDate(post.date) : '2026'}</span>
+              <span>·</span>
+              <span>⏱ {post.readTime} read</span>
+              <span>·</span>
+              <span>🇰🇪 Kenya-specific</span>
+              <span>·</span>
+              <span>✍️ Offgrid.ke</span>
+            </div>
+
+            <PostContent content={post.content} />
+
+            {/* Related posts */}
+            <RelatedPosts currentPost={post} />
+
+            {/* Footer CTA */}
+            <div style={{ marginTop: '3rem', background: 'linear-gradient(135deg, var(--color-sky), #0e3f57)', borderRadius: '14px', padding: '2rem 2.2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem' }}>
+              <div>
+                <h4 style={{ fontFamily: 'var(--font-display)', fontSize: '1.15rem', color: '#fff', marginBottom: '0.3rem' }}>More guides coming soon</h4>
+                <p style={{ fontSize: '0.86rem', color: 'rgba(255,255,255,0.7)' }}>Subscribe to get notified when new guides are published.</p>
+              </div>
+              <Link to="/contact" style={{ background: 'var(--color-sun)', color: '#fff', padding: '0.72rem 1.5rem', borderRadius: '8px', fontWeight: 700, fontSize: '0.88rem', whiteSpace: 'nowrap' }}>
+                Subscribe →
+              </Link>
+            </div>
+
+            {/* Nav */}
+            <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+              <Link to="/posts" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-muted)', border: '1px solid var(--color-rule)', padding: '0.6rem 1.3rem', borderRadius: '8px', fontSize: '0.86rem', fontWeight: 600 }}>
+                ← Back to all guides
+              </Link>
+              <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'var(--color-paper-2)', color: 'var(--color-ink)', border: '1px solid var(--color-rule)', padding: '0.6rem 1.3rem', borderRadius: '8px', fontSize: '0.86rem', fontWeight: 600 }}>
+                🏠 Home
+              </Link>
+            </div>
           </div>
         </div>
       </article>
+
+      <BackToTop />
+
+      <style>{`
+        @media (max-width: 900px) {
+          .post-grid { grid-template-columns: 1fr !important; }
+          .toc-desktop { display: none !important; }
+        }
+        @media (min-width: 901px) {
+          .toc-mobile { display: none !important; }
+        }
+      `}</style>
     </div>
   )
 }
