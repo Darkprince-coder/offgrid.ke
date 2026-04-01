@@ -2,24 +2,23 @@ import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { motion, useSpring, useTransform } from 'framer-motion'
 
-/**
- * ReadingProgress — a thin bar fixed below the navbar that fills
- * as the user scrolls through the page. Only visible on /posts/:slug.
- * Uses a spring for smooth, physical-feeling motion.
- */
+
 export default function ReadingProgress() {
   const { pathname } = useLocation()
   const [progress, setProgress] = useState(0)
 
-  // Only show on individual post pages
   const isPost = /^\/posts\/[^/]+$/.test(pathname)
 
+  // Scroll tracking — resets when leaving a post
   useEffect(() => {
-    if (!isPost) return
+    if (!isPost) {
+      setProgress(0)
+      return
+    }
 
     const update = () => {
-      const scrollTop  = window.scrollY
-      const docHeight  = document.documentElement.scrollHeight - window.innerHeight
+      const scrollTop = window.scrollY
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight
       setProgress(docHeight > 0 ? Math.min(scrollTop / docHeight, 1) : 0)
     }
 
@@ -28,10 +27,11 @@ export default function ReadingProgress() {
     return () => window.removeEventListener('scroll', update)
   }, [isPost, pathname])
 
-  // Spring for smooth motion — feels physical rather than linear
+
   const spring = useSpring(progress, { stiffness: 120, damping: 30 })
   const width  = useTransform(spring, v => `${v * 100}%`)
 
+  // Only render on post pages 
   if (!isPost) return null
 
   return (
@@ -41,15 +41,16 @@ export default function ReadingProgress() {
       left: 0,
       right: 0,
       height: '3px',
-      zIndex: 1002,
-      background: 'rgba(212, 114, 26, 0.12)',
+      zIndex: 1001,
+      background: 'rgba(212, 114, 26, 0.15)',
+      pointerEvents: 'none',
     }}>
       <motion.div style={{
         height: '100%',
         width,
         background: 'var(--color-sun)',
         transformOrigin: 'left',
-        boxShadow: '0 0 8px rgba(212, 114, 26, 0.4)',
+        boxShadow: '0 0 6px rgba(212, 114, 26, 0.5)',
       }} />
     </div>
   )

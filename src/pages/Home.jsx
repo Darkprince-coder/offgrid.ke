@@ -121,9 +121,9 @@ export default function Home() {
                 <Link to="/posts" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', background: 'var(--color-ink)', color: '#fff', padding: '0.75rem 1.6rem', borderRadius: '8px', fontWeight: 600, fontSize: '0.9rem' }}>
                   Start Reading →
                 </Link>
-                <a href="#tools" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', background: 'transparent', color: 'var(--color-ink)', border: '1.5px solid var(--color-rule)', padding: '0.75rem 1.6rem', borderRadius: '8px', fontWeight: 600, fontSize: '0.9rem' }}>
+                <Link to="/tools" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', background: 'transparent', color: 'var(--color-ink)', border: '1.5px solid var(--color-rule)', padding: '0.75rem 1.6rem', borderRadius: '8px', fontWeight: 600, fontSize: '0.9rem' }}>
                   Explore Tools
-                </a>
+                </Link>
               </motion.div>
             </motion.div>
 
@@ -191,7 +191,7 @@ export default function Home() {
               </Link>
             ))}
           </div>
-        </div>
+        </div> 
       </div>
 
       {/* ── LATEST GUIDES ─────────────────────────────────────── */}
