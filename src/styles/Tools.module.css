@@ -1,0 +1,245 @@
+/* Tools.module.css */
+
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 4rem 5% 6rem;
+}
+
+/* ── Header ─────────────────────────────────────────── */
+.header {
+  margin-bottom: 3rem;
+}
+
+.eyebrow {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--color-sun);
+  margin-bottom: 0.75rem;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 4vw, 3.2rem);
+  font-weight: 800;
+  letter-spacing: -1.5px;
+  color: var(--color-ink);
+  line-height: 1.07;
+  margin-bottom: 1rem;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: var(--color-muted);
+  line-height: 1.75;
+  max-width: 560px;
+}
+
+/* ── Live tools grid ─────────────────────────────────── */
+.toolsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3.5rem;
+}
+
+/* ── Tool card ───────────────────────────────────────── */
+.toolCard {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1.5px solid var(--color-rule);
+  border-radius: 16px;
+  padding: 1.8rem;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  height: 100%;
+}
+
+.toolCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 16px 40px rgba(26, 18, 8, 0.1);
+  border-color: var(--color-sun);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.1rem;
+}
+
+.iconWrap {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.badge {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+}
+
+.cardTitle {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-ink);
+  margin-bottom: 0.6rem;
+  line-height: 1.3;
+}
+
+.cardDesc {
+  font-size: 0.86rem;
+  color: var(--color-muted);
+  line-height: 1.65;
+  margin-bottom: 1.2rem;
+  flex: 1;
+}
+
+.statsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1.3rem;
+}
+
+.stat {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--color-ink-2);
+  background: var(--color-paper-2);
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+}
+
+.cardCta {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-top: auto;
+}
+
+/* ── Coming soon ─────────────────────────────────────── */
+.comingSoonSection {
+  margin-bottom: 3rem;
+}
+
+.comingSoonTitle {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-ink);
+  margin-bottom: 1rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 2px solid var(--color-rule);
+}
+
+.comingSoonGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.comingSoonCard {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--color-paper-2);
+  border: 1px solid var(--color-rule);
+  border-radius: 10px;
+  padding: 1rem 1.2rem;
+}
+
+.comingSoonIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.comingSoonLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--color-ink);
+  margin-bottom: 0.2rem;
+}
+
+.soonBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  background: #fff;
+  border: 1px solid var(--color-rule);
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+}
+
+.comingSoonDesc {
+  font-size: 0.82rem;
+  color: var(--color-muted);
+  line-height: 1.55;
+}
+
+/* ── Suggest CTA ─────────────────────────────────────── */
+.suggestCta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  background: var(--color-ink);
+  border-radius: 14px;
+  padding: 1.8rem 2rem;
+  flex-wrap: wrap;
+}
+
+.suggestCta strong {
+  display: block;
+  font-size: 1rem;
+  color: #fff;
+  margin-bottom: 0.3rem;
+}
+
+.suggestCta p {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+}
+
+.suggestBtn {
+  background: var(--color-sun);
+  color: #fff;
+  padding: 0.75rem 1.6rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: opacity 0.2s;
+}
+
+.suggestBtn:hover {
+  opacity: 0.9;
+}

@@ -10,11 +10,15 @@ import ReadingProgress from './components/ReadingProgress'
 import Home     from './pages/Home'
 import NotFound from './pages/NotFound'
 
-// ── Lazy loaded — cuts initial bundle ~60% ─────────────────────────────────────
+// ── Lazy loaded ────────────────────────────────────────────────────────────────
+// IMPORTANT: Only import files that actually exist in your project.
+// If you get a "Cannot find module" error, that file hasn't been created yet.
 const PostsIndex      = lazy(() => import('./pages/PostsIndex'))
 const Post            = lazy(() => import('./pages/Post'))
 const About           = lazy(() => import('./pages/About'))
 const Contact         = lazy(() => import('./pages/Contact'))
+const Newsletter      = lazy(() => import('./pages/Newsletter'))
+const Tools           = lazy(() => import('./pages/Tools'))
 const SolarCalculator = lazy(() => import('./pages/tools/SolarCalculator'))
 const CostComparison  = lazy(() => import('./pages/tools/CostComparison'))
 const WaterTankCalc   = lazy(() => import('./pages/tools/WaterTankCalculator'))
@@ -26,7 +30,7 @@ const pageVariants = {
   exit:     { opacity: 0, y: -8, transition: { duration: 0.18, ease: 'easeIn' } },
 }
 
-// ── Loading skeleton ───────────────────────────────────────────────────────────
+// ── Skeleton shown while lazy chunks load ──────────────────────────────────────
 function PageSkeleton() {
   return (
     <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '3rem 5%' }}>
@@ -84,6 +88,8 @@ function AnimatedRoutes() {
             <Route path="/posts/:slug"                 element={<Post />} />
             <Route path="/about"                       element={<About />} />
             <Route path="/contact"                     element={<Contact />} />
+            <Route path="/newsletter"                  element={<Newsletter />} />
+            <Route path="/tools"                       element={<Tools />} />
             <Route path="/tools/solar-calculator"      element={<SolarCalculator />} />
             <Route path="/tools/cost-comparison"       element={<CostComparison />} />
             <Route path="/tools/water-tank-calculator" element={<WaterTankCalc />} />

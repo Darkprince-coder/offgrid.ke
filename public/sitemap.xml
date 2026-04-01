@@ -18,6 +18,18 @@
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
+   <url>
+    <loc>https://offgrid.ke/tools</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+   <url>
+    <loc>https://offgrid.ke/newsletter</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
   <url>
     <loc>https://offgrid.ke/tools/solar-calculator</loc>
     <lastmod>2026-03-29</lastmod>

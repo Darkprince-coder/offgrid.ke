@@ -300,7 +300,7 @@ export default function Navbar() {
               {/* Footer links */}
               <motion.div custom={CATEGORIES.length + 1} variants={mobileItemVariants} initial="hidden" animate="visible"
                 style={{ padding: '1rem 1.4rem', borderTop: '1px solid var(--color-rule)', display: 'flex', gap: '1rem', flexShrink: 0 }}>
-                {[['About', '/about'], ['Contact', '/contact'], ['All Guides', '/posts']].map(([label, to]) => (
+                {[['Home', '/'], ['About', '/about'], ['Contact', '/contact'], ['All Guides', '/posts']].map(([label, to]) => (
                   <Link key={to} to={to} onClick={() => setMobileOpen(false)}
                     style={{ fontSize: '0.86rem', fontWeight: 600, color: 'var(--color-ink-2)', textDecoration: 'none' }}>
                     {label}

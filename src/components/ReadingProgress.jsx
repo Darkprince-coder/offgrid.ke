@@ -41,7 +41,7 @@ export default function ReadingProgress() {
       left: 0,
       right: 0,
       height: '3px',
-      zIndex: 1000,
+      zIndex: 1002,
       background: 'rgba(212, 114, 26, 0.12)',
     }}>
       <motion.div style={{

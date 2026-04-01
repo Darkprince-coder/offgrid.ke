@@ -71,6 +71,11 @@ const STATIC_PAGES = [
     description: 'Browse all free off-grid guides for Kenya: solar system sizing, water tanks, rainwater harvesting, battery comparisons, and more. Real KSh prices.',
   },
   {
+    route: '/tools', canonical: '/tools', image: '/og-default.jpg',
+    title: 'All Tools — Solar system & water tank size calculator | OFFGRID.KE',
+    description: 'Use our free calculators and get recommendation on brands and prices to match your needs',
+  },
+  {
     route: '/tools/solar-calculator', canonical: '/tools/solar-calculator', image: '/og-default.jpg',
     title: 'Free Solar System Calculator for Kenya — Panels, Batteries & Inverter | OFFGRID.KE',
     description: 'Enter your appliances and county. Get an instant solar system recommendation with real Kenyan prices for panels, batteries, and inverter. Free tool, no sign-up.',
@@ -94,7 +99,12 @@ const STATIC_PAGES = [
     route: '/contact', canonical: '/contact', image: '/og-default.jpg',
     title: 'Contact OFFGRID.KE — Questions & Corrections',
     description: 'Get in touch with the OFFGRID.KE team via WhatsApp or email. We reply to every question about solar, water, and off-grid living in Kenya.',
-  }
+  },
+   {
+    route: '/newsletter', canonical: '/newsletter', image: '/og-default.jpg',
+    title: 'OFFGRID.KE Newsletter — Off-Grid Tips for Kenya',
+    description: 'Sign up for the OFFGRID.KE newsletter. Get new guides, local prices, and product reviews straight to your inbox.',
+  },
 ]
 
 // ── HTML builder ──────────────────────────────────────────────────────────────
