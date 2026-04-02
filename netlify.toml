@@ -2,6 +2,91 @@
   command   = "npm ci --include=dev && node scripts/generate-sitemap.js && npm run build && node scripts/prerender.js"
   publish   = "dist"
 
+────────────────────────────────────────────────────────────────────────────
+
+# Static pre-rendered pages — serve directly, no redirect
+[[redirects]]
+  from   = "/"
+  to     = "/index.html"
+  status = 200
+
+[[redirects]]
+  from   = "/posts"
+  to     = "/posts/index.html"
+  status = 200
+
+[[redirects]]
+  from   = "/about"
+  to     = "/about/index.html"
+  status = 200
+
+[[redirects]]
+  from   = "/contact"
+  to     = "/contact/index.html"
+  status = 200
+
+[[redirects]]
+  from   = "/newsletter"
+  to     = "/newsletter/index.html"
+  status = 200
+
+[[redirects]]
+  from   = "/tools"
+  to     = "/tools/index.html"
+  status = 200
+
+[[redirects]]
+  from   = "/tools/solar-calculator"
+  to     = "/tools/solar-calculator/index.html"
+  status = 200
+
+[[redirects]]
+  from   = "/tools/cost-comparison"
+  to     = "/tools/cost-comparison/index.html"
+  status = 200
+
+[[redirects]]
+  from   = "/tools/water-tank-calculator"
+  to     = "/tools/water-tank-calculator/index.html"
+  status = 200
+
+# Pre-rendered post pages
+[[redirects]]
+  from   = "/posts/solar-panels-price-kenya"
+  to     = "/posts/solar-panels-price-kenya/index.html"
+  status = 200
+
+[[redirects]]
+  from   = "/posts/how-many-solar-panels"
+  to     = "/posts/how-many-solar-panels/index.html"
+  status = 200
+
+[[redirects]]
+  from   = "/posts/solar-3-bedroom-house"
+  to     = "/posts/solar-3-bedroom-house/index.html"
+  status = 200
+
+[[redirects]]
+  from   = "/posts/best-water-tanks-kenya"
+  to     = "/posts/best-water-tanks-kenya/index.html"
+  status = 200
+
+[[redirects]]
+  from   = "/posts/lithium-vs-lead-acid"
+  to     = "/posts/lithium-vs-lead-acid/index.html"
+  status = 200
+
+[[redirects]]
+  from   = "/posts/rainwater-harvesting-kenya"
+  to     = "/posts/rainwater-harvesting-kenya/index.html"
+  status = 200
+
+[[redirects]]
+  from   = "/posts/welcome-to-offgrid-ke"
+  to     = "/posts/welcome-to-offgrid-ke/index.html"
+  status = 200
+
+# SPA fallback — catches anything not matched above (dynamic CMS posts etc.)
 [[redirects]]
   from   = "/*"
   to     = "/index.html"
@@ -10,6 +95,7 @@
 [build.environment]
   NODE_VERSION = "18"
 
+# ── Cache headers ─────────────────────────────────────────────────────────────
 [[headers]]
   for = "/sitemap.xml"
   [headers.values]
@@ -22,13 +108,13 @@
     Content-Type  = "text/plain"
     Cache-Control = "public, max-age=86400"
 
-# Aggressive caching for static assets (hashed filenames from Vite)
+# Hashed assets are immutable — cache forever
 [[headers]]
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# Cache images for 7 days
+# Images — 7 days
 [[headers]]
   for = "/images/*"
   [headers.values]

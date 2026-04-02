@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { formatDate } from '../data/posts'
+import styles from '../styles/PostCard.module.css'
 
 const topicImages = {
   solar: [
@@ -31,24 +32,22 @@ const fallbackGradients = {
   how:      'linear-gradient(135deg,#1a1a2e,#16213e,#0f3460)',
 }
 
-const tagClass = { solar: 'tag-solar', water: 'tag-water', how: 'tag-how', security: 'tag-security' }
+const tagClass = {
+  solar:    'tag-solar',
+  water:    'tag-water',
+  how:      'tag-how',
+  security: 'tag-security',
+}
 
-// Card reveal — staggered based on index
 const cardVariants = {
   hidden:  { opacity: 0, y: 28 },
   visible: (i) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      delay: i * 0.07,
-      duration: 0.42,
-      ease: [0.25, 0.46, 0.45, 0.94],
-    },
+    opacity: 1, y: 0,
+    transition: { delay: i * 0.07, duration: 0.42, ease: [0.25, 0.46, 0.45, 0.94] },
   }),
 }
 
 export default function PostCard({ post, index = 0 }) {
-  const [hovered,  setHovered]  = useState(false)
   const [imgError, setImgError] = useState(false)
 
   const images   = topicImages[post.tagColor] || topicImages.how
@@ -63,70 +62,49 @@ export default function PostCard({ post, index = 0 }) {
       whileInView="visible"
       viewport={{ once: true, margin: '-60px' }}
     >
-      <Link
-        to={`/posts/${post.slug}`}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        style={{
-          display: 'flex', flexDirection: 'column',
-          background: '#fff',
-          border: '1px solid var(--color-rule)',
-          borderRadius: 'var(--radius-card)',
-          overflow: 'hidden',
-          textDecoration: 'none', color: 'inherit',
-          transition: 'transform var(--transition), box-shadow var(--transition)',
-          transform: hovered ? 'translateY(-6px)' : 'none',
-          boxShadow: hovered ? 'var(--shadow-card)' : 'none',
-          height: '100%',
-        }}
-      >
+      <Link to={`/posts/${post.slug}`} className={styles.card}>
+
         {/* Image strip */}
-        <div style={{ height: '200px', position: 'relative', overflow: 'hidden', background: fallback }}>
+        <div className={styles.imageWrap} style={{ background: fallback }}>
           {!imgError && (
             <img
               src={imgUrl}
               alt={`${post.title} — offgrid.ke`}
               loading="lazy"
               onError={() => setImgError(true)}
-              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.5s ease', transform: hovered ? 'scale(1.06)' : 'scale(1)' }}
+              className={styles.image}
             />
           )}
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.15) 60%, transparent 100%)' }} />
-          <span style={{ position: 'absolute', bottom: '1.1rem', left: '1.3rem', zIndex: 1, background: 'var(--color-sun)', color: '#fff', fontSize: '0.66rem', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', padding: '0.22rem 0.65rem', borderRadius: '5px' }}>
-            {post.tag}
-          </span>
-          <span style={{ position: 'absolute', top: '1rem', right: '1rem', zIndex: 1, background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(4px)', color: '#fff', fontSize: '0.66rem', fontWeight: 600, padding: '0.22rem 0.6rem', borderRadius: '20px' }}>
-            {post.readTime}
-          </span>
+          <div className={styles.imageOverlay} />
+          <span className={styles.tagBadge}>{post.tag}</span>
+          <span className={styles.readTimeBadge}>{post.readTime}</span>
         </div>
 
         {/* Body */}
-        <div style={{ padding: '1.4rem 1.5rem', display: 'flex', flexDirection: 'column', flex: 1 }}>
-          <span className={`tag ${tagClass[post.tagColor] || 'tag-how'}`} style={{ marginBottom: '0.65rem' }}>{post.tag}</span>
+        <div className={styles.body}>
+          <span className={`tag ${tagClass[post.tagColor] || 'tag-how'} ${styles.tagPill}`}>
+            {post.tag}
+          </span>
 
-          <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.05rem', fontWeight: 700, lineHeight: 1.3, color: hovered ? 'var(--color-sky)' : 'var(--color-ink)', marginBottom: '0.65rem', flex: 1, transition: 'color var(--transition)' }}>
-            {post.title}
-          </h3>
+          <h3 className={styles.title}>{post.title}</h3>
 
           {post.excerpt && (
-            <p style={{ fontSize: '0.86rem', color: 'var(--color-muted)', lineHeight: 1.65, marginBottom: '1.1rem' }}>
-              {post.excerpt}
-            </p>
+            <p className={styles.excerpt}>{post.excerpt}</p>
           )}
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', fontSize: '0.73rem', color: 'var(--color-muted)', paddingTop: '0.9rem', borderTop: '1px solid var(--color-rule)', marginBottom: '1rem', flexWrap: 'wrap' }}>
+          <div className={styles.meta}>
             <span>{post.tag}</span>
-            <span style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'var(--color-rule)', display: 'inline-block' }} />
+            <span className={styles.metaDot} />
             <span>{post.readTime} read</span>
-            {post.date && <>
-              <span style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'var(--color-rule)', display: 'inline-block' }} />
-              <span>{formatDate(post.date)}</span>
-            </>}
+            {post.date && (
+              <>
+                <span className={styles.metaDot} />
+                <span>{formatDate(post.date)}</span>
+              </>
+            )}
           </div>
 
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', background: hovered ? 'var(--color-sun)' : 'var(--color-ink)', color: '#fff', padding: '0.6rem 1.2rem', borderRadius: '8px', fontWeight: 600, fontSize: '0.83rem', alignSelf: 'flex-start', transition: 'background var(--transition)' }}>
-            Read Guide →
-          </span>
+          <span className={styles.cta}>Read Guide →</span>
         </div>
       </Link>
     </motion.div>

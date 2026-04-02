@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { motion, useSpring, useTransform } from 'framer-motion'
 
-
 export default function ReadingProgress() {
   const { pathname } = useLocation()
   const [progress, setProgress] = useState(0)
@@ -27,11 +26,11 @@ export default function ReadingProgress() {
     return () => window.removeEventListener('scroll', update)
   }, [isPost, pathname])
 
-
+  // These MUST be before any conditional return — Rules of Hooks
   const spring = useSpring(progress, { stiffness: 120, damping: 30 })
   const width  = useTransform(spring, v => `${v * 100}%`)
 
-  // Only render on post pages 
+  // Only render on post pages — but all hooks above have already run
   if (!isPost) return null
 
   return (

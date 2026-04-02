@@ -1,0 +1,95 @@
+/* Footer.module.css */
+
+.footer {
+  background: var(--color-ink);
+  color: rgba(255,255,255,0.55);
+  padding: 4rem 5% 2rem;
+}
+
+.inner {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 3rem;
+  padding-bottom: 3rem;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+/* ── Brand column ────────────────────────────────────── */
+.logoLink {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -1px;
+  display: block;
+  margin-bottom: 1rem;
+  text-decoration: none;
+}
+
+.logoAccent {
+  color: var(--color-sun);
+}
+
+.tagline {
+  font-size: 0.87rem;
+  line-height: 1.7;
+  max-width: 250px;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 1rem;
+}
+
+.tag {
+  background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.45);
+  font-size: 0.7rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+}
+
+/* ── Link columns ────────────────────────────────────── */
+.colTitle {
+  color: rgba(255,255,255,0.28);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.link {
+  color: rgba(255,255,255,0.5);
+  font-size: 0.87rem;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.link:hover {
+  color: rgba(255,255,255,0.8);
+}
+
+/* ── Bottom bar ──────────────────────────────────────── */
+.bottom {
+  padding-top: 1.8rem;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.76rem;
+  color: rgba(255,255,255,0.22);
+}
