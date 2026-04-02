@@ -2,7 +2,7 @@
   command   = "npm ci --include=dev && node scripts/generate-sitemap.js && npm run build && node scripts/prerender.js"
   publish   = "dist"
 
-────────────────────────────────────────────────────────────────────────────
+
 
 # Static pre-rendered pages — serve directly, no redirect
 [[redirects]]
